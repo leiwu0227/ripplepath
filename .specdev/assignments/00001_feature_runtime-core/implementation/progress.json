@@ -1,0 +1,102 @@
+{
+  "plan_file": "/mnt/h/oceanwave/lib/playground/langgraph/.specdev/assignments/00001_feature_runtime-core/breakdown/plan.md",
+  "total_tasks": 16,
+  "tasks": [
+    {
+      "number": 1,
+      "status": "in_progress",
+      "started_at": "2026-05-13T05:57:42Z",
+      "completed_at": null
+    },
+    {
+      "number": 2,
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null
+    },
+    {
+      "number": 3,
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null
+    },
+    {
+      "number": 4,
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null
+    },
+    {
+      "number": 5,
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null
+    },
+    {
+      "number": 6,
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null
+    },
+    {
+      "number": 7,
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null
+    },
+    {
+      "number": 8,
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null
+    },
+    {
+      "number": 9,
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null
+    },
+    {
+      "number": 10,
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null
+    },
+    {
+      "number": 11,
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null
+    },
+    {
+      "number": 12,
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null
+    },
+    {
+      "number": 13,
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null
+    },
+    {
+      "number": 14,
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null
+    },
+    {
+      "number": 15,
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null
+    },
+    {
+      "number": 16,
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null
+    }
+  ]
+}

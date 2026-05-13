@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SpecDev Review Request",
+  "description": "File-based handoff protocol for automated review agent",
+  "type": "object",
+  "required": ["version", "assignment_id", "assignment_path", "gate", "status", "timestamp"],
+  "properties": {
+    "version": {
+      "type": "integer",
+      "const": 1,
+      "description": "Schema version"
+    },
+    "assignment_id": {
+      "type": "string",
+      "pattern": "^\\d{5}$",
+      "description": "Five-digit assignment ID (e.g. 00001)"
+    },
+    "assignment_path": {
+      "type": "string",
+      "description": "Relative path to assignment directory from project root"
+    },
+    "gate": {
+      "type": "string",
+      "enum": ["review"],
+      "description": "Review type"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["pending", "in_progress", "passed", "failed"],
+      "description": "Review lifecycle status"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of request creation"
+    },
+    "head_commit": {
+      "type": "string",
+      "description": "Git commit hash at time of request"
+    },
+    "changed_files": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "List of files changed in this assignment"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Optional context from implementer"
+    },
+    "reviewer_notes": {
+      "type": "string",
+      "description": "Notes from reviewer (set on accept/reject)"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of review completion"
+    }
+  }
+}

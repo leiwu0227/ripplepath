@@ -1,0 +1,82 @@
+# Gate Checklist Template
+
+Copy this into assignment folder as `review/validation_checklist.md`.
+
+---
+
+## Gate 0: Planning Complexity and Skill Selection
+
+**Status:** ⬜ Not Started / 🔄 In Progress / ✅ Passed
+
+- [ ] Complexity class set: LOW / MEDIUM / HIGH
+- [ ] Required skills selected and logged in `skills_invoked.md`
+- [ ] Skill artifacts listed with expected paths
+
+---
+
+## Gate 1: Post-Architecture Review (conditional)
+
+**Status:** ⬜ Not Started / 🔄 In Progress / ✅ Passed / ⏭️ Skipped
+
+- [ ] Skip only if complexity is LOW
+- [ ] MEDIUM complexity: `scaffold/_architecture.md` produced, user approved contracts
+- [ ] HIGH complexity: full architecture artifacts complete, user approved before implementation
+
+---
+
+## Gate 2: Per-Task TDD Validation
+
+| Task ID | Description | RED ✓ | GREEN ✓ | REFACTOR ✓ | Date |
+|---------|-------------|-------|---------|------------|------|
+| T001 | [Task name] | ⬜ / ✅ | ⬜ / ✅ | ⬜ / ✅ | YYYY-MM-DD |
+
+Per-task checks:
+
+- [ ] Failing test before production code
+- [ ] Correct failure reason
+- [ ] Minimum code to pass
+- [ ] All tests pass
+- [ ] Contracts/signatures align with planned artifacts
+
+---
+
+## Review: Spec Compliance + Code Quality
+
+**Status:** ⬜ Not Started / 🔄 In Progress / ✅ Passed
+
+- [ ] Review packet prepared with changed files + plan/proposal scope
+- [ ] Spec compliance checked: implementation matches design
+- [ ] Deviations listed as `file:line` with expected vs actual
+- [ ] Code quality reviewed: architecture, testing, style
+- [ ] Findings tagged CRITICAL / IMPORTANT / MINOR
+- [ ] Each finding has `file:line`, impact, proposed fix
+- [ ] Verdict captured: READY TO MERGE / NOT READY
+- [ ] Feedback disposition captured (fixed/disagree with evidence)
+
+---
+
+## Verification Evidence (required before completion)
+
+| Command | Exit Code | Key Output | Notes |
+|---------|-----------|------------|-------|
+| [command] | 0 | [summary line] | [context] |
+
+---
+
+## Finalize
+
+- [ ] `feature_descriptions.md` updated (if applicable)
+- [ ] `project_scaffolding/` updated
+- [ ] `skills_invoked.md` complete
+- [ ] assignment marked DONE in `assignment_progress.md`
+
+## Optional Knowledge Capture
+
+- [ ] Reusable learnings searched, pruned/replaced, and recorded only if useful
+- [ ] Workflow observations noted in `knowledge/workflow_feedback/` (if applicable)
+
+---
+
+## Notes
+
+Use for blockers, deviations, rollback rationale, and follow-up assignments.

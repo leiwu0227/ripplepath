@@ -1,0 +1,8 @@
+{
+  "round_focus": {
+    "1": "Architecture & structure — review modularity, separation of concerns, API design, and dependency direction. Identify structural issues.",
+    "2": "Code efficiency — eliminate dead code, replace imperative loops with functional alternatives, extract magic numbers into constants, prefer pure functions with minimal side effects, verify Big O complexity of algorithms.",
+    "3": "Domain & task-specific — verify implementation matches the spec/design, check edge cases, validate error handling.",
+    "default": "General review — catch anything missed in previous rounds."
+  }
+}

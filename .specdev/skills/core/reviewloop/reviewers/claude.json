@@ -1,0 +1,7 @@
+{
+  "name": "claude",
+  "command": "claude --model 'claude-opus-4-6[1m]' --fallback-model sonnet --effort high --print --output-format stream-json --verbose --no-session-persistence --dangerously-skip-permissions --permission-mode bypassPermissions \"Run specdev review $SPECDEV_PHASE --round $SPECDEV_ROUND. Follow its instructions exactly. Feedback file: $SPECDEV_FEEDBACK_FILE. Changelog file: $SPECDEV_CHANGELOG_FILE. You MUST append a ## Round $SPECDEV_ROUND section with **Verdict:** approved or **Verdict:** needs-changes to $SPECDEV_FEEDBACK_FILE before exiting. If you read prior findings, use $SPECDEV_CHANGELOG_FILE to verify addressed changes. Do not only summarize in stdout.\"",
+  "stream_json": true,
+  "max_rounds": 3,
+  "timeout_seconds": 1200
+}

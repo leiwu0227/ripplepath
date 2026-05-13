@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["topic", "scope_used", "sources", "findings_word_count", "confidence", "status"],
+  "properties": {
+    "topic": {
+      "type": "string",
+      "minLength": 1
+    },
+    "scope_used": {
+      "type": "array",
+      "items": {
+        "enum": ["repo", "knowledge", "web"]
+      },
+      "minItems": 1
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["type", "ref"],
+        "properties": {
+          "type": {
+            "enum": ["repo", "knowledge", "web"]
+          },
+          "ref": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "findings_word_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "confidence": {
+      "enum": ["high", "medium", "low"]
+    },
+    "status": {
+      "enum": ["ok", "partial", "failed"]
+    }
+  },
+  "additionalProperties": false
+}

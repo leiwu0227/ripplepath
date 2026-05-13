@@ -1,0 +1,5 @@
+{
+  "name": "cursor-gemini",
+  "command": "cursor-agent -f -m gemini-3.1-pro -p \"Run specdev review $SPECDEV_PHASE --round $SPECDEV_ROUND. Follow its instructions.\"",
+  "max_rounds": 3
+}
