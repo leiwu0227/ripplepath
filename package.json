@@ -15,14 +15,12 @@
   ],
   "scripts": {
     "build": "tsc",
-    "prepare": "node ./node_modules/typescript/bin/tsc",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "jsonc-parser": "^3.3.1",
     "tsx": "^4.19.2",
-    "typescript": "^5.7.2",
     "zod-to-json-schema": "^3.24.1"
   },
   "peerDependencies": {
@@ -30,6 +28,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.17.10",
+    "typescript": "^5.7.2",
     "vitest": "^2.1.8",
     "zod": "^3.25.76"
   },
