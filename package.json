@@ -15,7 +15,6 @@
   ],
   "scripts": {
     "build": "tsc",
-    "prepare": "node ./node_modules/typescript/bin/tsc",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
