@@ -65,6 +65,12 @@ export interface PendingConfirmation {
   entry_id: string;
   reason: string;
   message: string;
+  // Where the runtime would have gone if no jump had been proposed. On a
+  // modal jump approval, this is pushed onto the stack so popFrame restores
+  // the host to the deferred-transition position (NOT the node it just
+  // completed — that node's output is already saved).
+  resume_path: string[];
+  resume_attempt: number;
 }
 
 export interface RunState {

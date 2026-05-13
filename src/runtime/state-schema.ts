@@ -15,6 +15,8 @@ export const pendingConfirmationSchema = z.object({
   entry_id: z.string().min(1),
   reason: z.string(),
   message: z.string(),
+  resume_path: z.array(z.string().min(1)).min(1),
+  resume_attempt: z.number().int().nonnegative(),
 });
 
 export const runStateSchema = z.object({

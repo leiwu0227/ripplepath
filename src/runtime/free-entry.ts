@@ -43,6 +43,7 @@ export function proposeJump(
   state: RunState,
   proposal: JumpProposal,
   root: ParsedGraph,
+  resume: { path: string[]; attempt: number },
 ): PendingConfirmation {
   const located = locate(root, state.current.path);
   const entry = located.graph.entries.find((e) => e.id === proposal.entry_id);
@@ -55,6 +56,8 @@ export function proposeJump(
     entry_id: entry.id,
     reason: proposal.reason,
     message: `Agent proposes jumping to "${entry.id}" (${entry.mode}): ${proposal.reason}. Approve?`,
+    resume_path: resume.path,
+    resume_attempt: resume.attempt,
   };
   state.pending_confirmation = pending;
   return pending;
@@ -94,7 +97,7 @@ export function confirmJump(
     if (state.stack.length >= MODAL_STACK_DEPTH_CAP) {
       throw new ModalDepthCapError(state.stack.length);
     }
-    state.stack.push({ path: state.current.path, attempt: state.current.attempt });
+    state.stack.push({ path: pending.resume_path, attempt: pending.resume_attempt });
   }
   // For 'replace', we simply discard the current frame (do not push)
 

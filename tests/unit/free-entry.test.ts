@@ -55,7 +55,12 @@ describe('free-entry', () => {
   it('proposeJump records a pending confirmation', () => {
     const graph = fixture();
     const state = fakeState(['one']);
-    const pending = proposeJump(state, { entry_id: 'reset', reason: 'user asked' }, graph);
+    const pending = proposeJump(
+      state,
+      { entry_id: 'reset', reason: 'user asked' },
+      graph,
+      { path: ['two'], attempt: 0 },
+    );
     expect(pending.entry_id).toBe('reset');
     expect(state.pending_confirmation).toEqual(pending);
   });
@@ -63,21 +68,25 @@ describe('free-entry', () => {
   it('proposeJump rejects unknown entry id', () => {
     const graph = fixture();
     const state = fakeState(['one']);
-    expect(() => proposeJump(state, { entry_id: 'ghost', reason: 'x' }, graph)).toThrow(
-      UnknownEntryError,
-    );
+    expect(() =>
+      proposeJump(state, { entry_id: 'ghost', reason: 'x' }, graph, { path: ['two'], attempt: 0 }),
+    ).toThrow(UnknownEntryError);
   });
 
-  it('confirmJump in modal mode pushes frame and moves to target', () => {
+  it('confirmJump in modal mode pushes the deferred-resume frame and moves to target', () => {
     const graph = fixture();
     const state = fakeState(['one']);
     state.current.attempt = 2;
-    const pending = proposeJump(state, { entry_id: 'reset', reason: 'r' }, graph);
+    const pending = proposeJump(state, { entry_id: 'reset', reason: 'r' }, graph, {
+      path: ['two'],
+      attempt: 0,
+    });
     const result = confirmJump(state, pending.proposal_id, 'approved', graph);
     expect(result.applied).toBe(true);
     expect(result.mode).toBe('modal');
     expect(state.stack).toHaveLength(1);
-    expect(state.stack[0]).toEqual({ path: ['one'], attempt: 2 });
+    // Stack frame is the DEFERRED resume target, not the originating node
+    expect(state.stack[0]).toEqual({ path: ['two'], attempt: 0 });
     expect(state.current.path).toEqual(['reset_target']);
     expect(state.current.attempt).toBe(0);
     expect(state.pending_confirmation).toBeUndefined();
@@ -86,7 +95,10 @@ describe('free-entry', () => {
   it('confirmJump in replace mode does not push frame', () => {
     const graph = fixture();
     const state = fakeState(['one']);
-    const pending = proposeJump(state, { entry_id: 'switch', reason: 'r' }, graph);
+    const pending = proposeJump(state, { entry_id: 'switch', reason: 'r' }, graph, {
+      path: ['two'],
+      attempt: 0,
+    });
     confirmJump(state, pending.proposal_id, 'approved', graph);
     expect(state.stack).toHaveLength(0);
     expect(state.current.path).toEqual(['reset_target']);
@@ -95,7 +107,10 @@ describe('free-entry', () => {
   it('confirmJump rejected leaves state untouched (only clears pending)', () => {
     const graph = fixture();
     const state = fakeState(['one']);
-    const pending = proposeJump(state, { entry_id: 'reset', reason: 'r' }, graph);
+    const pending = proposeJump(state, { entry_id: 'reset', reason: 'r' }, graph, {
+      path: ['two'],
+      attempt: 0,
+    });
     const beforePath = [...state.current.path];
     confirmJump(state, pending.proposal_id, 'rejected', graph);
     expect(state.current.path).toEqual(beforePath);
@@ -106,23 +121,28 @@ describe('free-entry', () => {
   it('confirmJump rejects mismatched proposal_id', () => {
     const graph = fixture();
     const state = fakeState(['one']);
-    proposeJump(state, { entry_id: 'reset', reason: 'r' }, graph);
+    proposeJump(state, { entry_id: 'reset', reason: 'r' }, graph, {
+      path: ['two'],
+      attempt: 0,
+    });
     expect(() => confirmJump(state, 'bad-id', 'approved', graph)).toThrow(
       NoMatchingProposalError,
     );
   });
 
-  it('popFrame restores prior position', () => {
+  it('popFrame restores the deferred resume target', () => {
     const graph = fixture();
     const state = fakeState(['one']);
-    state.current.attempt = 1;
-    const pending = proposeJump(state, { entry_id: 'reset', reason: 'r' }, graph);
+    const pending = proposeJump(state, { entry_id: 'reset', reason: 'r' }, graph, {
+      path: ['two'],
+      attempt: 0,
+    });
     confirmJump(state, pending.proposal_id, 'approved', graph);
     expect(state.current.path).toEqual(['reset_target']);
     const popped = popFrame(state);
     expect(popped.popped).toBe(true);
-    expect(state.current.path).toEqual(['one']);
-    expect(state.current.attempt).toBe(1);
+    expect(state.current.path).toEqual(['two']);
+    expect(state.current.attempt).toBe(0);
     expect(state.stack).toHaveLength(0);
   });
 
@@ -134,7 +154,10 @@ describe('free-entry', () => {
       { path: ['old2'], attempt: 0 },
     ];
     expect(state.stack.length).toBe(MODAL_STACK_DEPTH_CAP);
-    const pending = proposeJump(state, { entry_id: 'reset', reason: 'r' }, graph);
+    const pending = proposeJump(state, { entry_id: 'reset', reason: 'r' }, graph, {
+      path: ['two'],
+      attempt: 0,
+    });
     expect(() => confirmJump(state, pending.proposal_id, 'approved', graph)).toThrow(
       ModalDepthCapError,
     );

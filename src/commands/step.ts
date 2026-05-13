@@ -115,14 +115,30 @@ interface HasProposedJump {
   proposed_jump?: { entry_id?: unknown; reason?: unknown };
 }
 
-function extractProposedJump(output: unknown): { entry_id: string; reason: string } | null {
-  if (!output || typeof output !== 'object') return null;
+// proposed_jump is a protocol-level field. It is extracted before schema
+// validation so node schemas (which are .strict()) do not need to declare it.
+function extractAndStripProposedJump(
+  output: unknown,
+): { jump: { entry_id: string; reason: string } | null; outputForValidation: unknown } {
+  if (!output || typeof output !== 'object') {
+    return { jump: null, outputForValidation: output };
+  }
   const candidate = (output as HasProposedJump).proposed_jump;
-  if (!candidate || typeof candidate !== 'object') return null;
-  const entryId = candidate.entry_id;
-  const reason = candidate.reason;
-  if (typeof entryId !== 'string' || typeof reason !== 'string') return null;
-  return { entry_id: entryId, reason };
+  let jump: { entry_id: string; reason: string } | null = null;
+  if (candidate && typeof candidate === 'object') {
+    const entryId = candidate.entry_id;
+    const reason = candidate.reason;
+    if (typeof entryId === 'string' && typeof reason === 'string') {
+      jump = { entry_id: entryId, reason };
+    }
+  }
+  if ('proposed_jump' in (output as Record<string, unknown>)) {
+    const { proposed_jump: _ignored, ...rest } = output as Record<string, unknown> & {
+      proposed_jump?: unknown;
+    };
+    return { jump, outputForValidation: rest };
+  }
+  return { jump, outputForValidation: output };
 }
 
 export async function runStepCommand(opts: StepOptions): Promise<StepResponse> {
@@ -160,8 +176,11 @@ export async function runStepCommand(opts: StepOptions): Promise<StepResponse> {
   const workNode: WorkNode = located.node;
   const assets = await resolveWorkNode(workNode.nodePath);
 
+  // Strip protocol-level proposed_jump before schema validation
+  const { jump, outputForValidation } = extractAndStripProposedJump(opts.output);
+
   // Validate output
-  const parseResult = assets.outputSchema.safeParse(opts.output);
+  const parseResult = assets.outputSchema.safeParse(outputForValidation);
   if (!parseResult.success) {
     recordAttempt(state);
     appendEvent(rootPath, runId, {
@@ -209,10 +228,16 @@ export async function runStepCommand(opts: StepOptions): Promise<StepResponse> {
     body: { node_id: workNode.id, exec_used: opts.execUsed },
   });
 
-  // Check for proposed_jump
-  const jump = extractProposedJump(validated);
+  // Compute the deferred transition (where we would go if no jump) so a modal
+  // pop can resume from the post-transition position — never re-execute the
+  // node whose output we just wrote.
+  const eScope = edgeScope(state, located.ancestorIds);
+  const deferredEdge = pickEdge(located.graph.edges, workNode.id, eScope);
+  const deferredPath = [...located.ancestorIds, deferredEdge.to];
+
+  // Check for proposed_jump (extracted before validation)
   if (jump) {
-    const pending = proposeJump(state, jump, graph);
+    const pending = proposeJump(state, jump, graph, { path: deferredPath, attempt: 0 });
     appendEvent(rootPath, runId, {
       type: 'entry_proposed',
       body: { proposal_id: pending.proposal_id, entry_id: jump.entry_id, reason: jump.reason },
@@ -221,18 +246,21 @@ export async function runStepCommand(opts: StepOptions): Promise<StepResponse> {
     return {
       status: 'pending_confirmation',
       run_id: runId,
-      proposal: { ...pending },
+      proposal: {
+        proposal_id: pending.proposal_id,
+        entry_id: pending.entry_id,
+        reason: pending.reason,
+        message: pending.message,
+      },
     };
   }
 
   // Normal transition via edges
-  const eScope = edgeScope(state, located.ancestorIds);
-  const edge = pickEdge(located.graph.edges, workNode.id, eScope);
-  state.current.path = [...located.ancestorIds, edge.to];
+  state.current.path = deferredPath;
   resetAttempt(state);
   appendEvent(rootPath, runId, {
     type: 'transition',
-    body: { from: workNode.id, to: edge.to },
+    body: { from: workNode.id, to: deferredEdge.to },
   });
 
   return await buildAdvanceResponse(rootPath, runId, graph, state);
