@@ -4,20 +4,22 @@
   "tasks": [
     {
       "number": 1,
-      "status": "in_progress",
+      "status": "completed",
       "started_at": "2026-05-13T05:57:42Z",
-      "completed_at": null
+      "completed_at": "2026-05-13T05:59:19Z",
+      "summary": "Scaffolded npm package: package.json with deps (jsonc-parser, tsx, zod-to-json-schema, peer zod), tsconfig (Node 20+ ESM, strict, noUncheckedIndexedAccess), bin/ripplepath shim, src/index.ts placeholder, vitest config, .gitignore, README. Typecheck clean. No template content yet (Task 13)."
     },
     {
       "number": 2,
-      "status": "pending",
-      "started_at": null,
-      "completed_at": null
+      "status": "completed",
+      "started_at": "2026-05-13T06:12:08Z",
+      "completed_at": "2026-05-13T06:12:43Z",
+      "summary": "Created src/graph/types.ts (ParsedGraph + node discriminated union + RunState), src/graph/schema.ts (workflowJsonSchema with edge/entry id refinement, mapExpr regex, edge expression contract documented), src/runtime/state-schema.ts (RunState zod for load-time corruption). Typecheck clean."
     },
     {
       "number": 3,
-      "status": "pending",
-      "started_at": null,
+      "status": "in_progress",
+      "started_at": "2026-05-13T06:12:53Z",
       "completed_at": null
     },
     {

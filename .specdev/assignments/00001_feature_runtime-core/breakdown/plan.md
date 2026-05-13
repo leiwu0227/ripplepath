@@ -10,7 +10,7 @@
 
 **Execution Mode:** inline
 
-**Test Budget:** ≤ 5 new tests across all tasks. Four components have isolated logic warranting unit tests (graph parser, state store + run lifecycle, neighborhood + overview generator, free-entry modal stack). One end-to-end test drives the worked example through every mechanic (subgraph with input/output mapping, inline + spawn, schema retry, modal entry). Composing CLI commands (`state`, `step`) and the state-mapping evaluator are tested transitively through the E2E.
+**Test Budget:** 5 new test **files** (one per isolated module: parser, state-store, neighborhood, free-entry, E2E), with up to ~7 `it()` cases per file — each case covers a distinct error path or success contract that warrants a named diagnostic. Aggregate cap ≤ 35 `it()` cases. Justification for going over the default `+1 per task`: a v0 runtime parser/state-store/etc. has multiple distinct failure modes (missing file, schema mismatch, cyclic ref, dangling pointer, etc.) and consolidating into single tests would lose the diagnostic value of named assertions. Composing CLI commands (`state`, `step`) and the state-mapping evaluator remain test-budget-free — covered transitively by the E2E.
 
 ---
 
@@ -82,7 +82,7 @@
 - Run: `vitest run tests/unit/parse.test.ts`
 - Test exercises: valid graph (nested 2 levels) parses; missing `workflow.json` errors; schema-invalid graph errors with field path; cyclic ref tree rejected; node folder without `schema.ts` rejected
 
-**Test Budget:** +1 in `tests/unit/parse.test.ts`; focused (<30s)
+**Test Budget:** +1 file (~7 cases) in `tests/unit/parse.test.ts`; focused (<30s)
 **Test Pruning:** N/A
 **Commit:** `git commit -m "graph parser with ref resolver and cycle detection"`
 
@@ -105,7 +105,7 @@
 - Run: `vitest run tests/unit/state-store.test.ts`
 - Test exercises: first call creates run + active.json + state.json + transcript.md (empty); subsequent call loads existing run; atomic write leaves no `.tmp` on success; dangling active.json surfaces corruption error; invalid state.json surfaces schema error
 
-**Test Budget:** +1 in `tests/unit/state-store.test.ts`; focused (<30s)
+**Test Budget:** +1 file (~7 cases) in `tests/unit/state-store.test.ts`; focused (<30s)
 **Test Pruning:** N/A
 **Commit:** `git commit -m "state store with run lifecycle and atomic writes"`
 
@@ -168,7 +168,7 @@
 - Run: `vitest run tests/unit/neighborhood.test.ts`
 - Test exercises: overview lists top-level nodes with subgraph goals; "you are here" marker correctly placed when inside a depth-1 subgraph; neighborhood includes prior outputs in full; next-nodes show purposes only; breadcrumb correct at depth 1 and 2; free entries only from active graph
 
-**Test Budget:** +1 in `tests/unit/neighborhood.test.ts`; focused (<30s)
+**Test Budget:** +1 file (~7 cases) in `tests/unit/neighborhood.test.ts`; focused (<30s)
 **Test Pruning:** N/A
 **Commit:** `git commit -m "neighborhood and workflow overview generator"`
 
@@ -192,7 +192,7 @@
 - Run: `vitest run tests/unit/free-entry.test.ts`
 - Test exercises: modal push then pop restores original `current.path` and `attempt`; replace discards stack; depth-2 cap rejects third modal push; invalid entry id rejected; rejected decision clears `pending_confirmation` without state change
 
-**Test Budget:** +1 in `tests/unit/free-entry.test.ts`; focused (<30s)
+**Test Budget:** +1 file (~7 cases) in `tests/unit/free-entry.test.ts`; focused (<30s)
 **Test Pruning:** N/A
 **Commit:** `git commit -m "free-entry proposals and modal stack"`
 
@@ -385,7 +385,7 @@
 - All assertions pass; transcript event log is replayable
 - Final LOC check: `find src -name '*.ts' -print0 | xargs -0 wc -l` reports total within the ~500–700 target
 
-**Test Budget:** +1 in `tests/e2e/minimal.e2e.test.ts`; focused (<2 min)
+**Test Budget:** +1 file (~7 cases) in `tests/e2e/minimal.e2e.test.ts`; focused (<2 min)
 **Test Pruning:** N/A
 **Commit:** `git commit -m "e2e test harness and minimal acceptance test"`
 
