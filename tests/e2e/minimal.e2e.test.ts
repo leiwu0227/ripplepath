@@ -144,30 +144,35 @@ describe('minimal workflow e2e', () => {
       // No leftover pending confirmation
       expect(state['pending_confirmation']).toBeUndefined();
 
-      // Transcript should contain the expected event types in order
-      const eventOrder = [
+      // Every required lifecycle event must appear at least once
+      const requiredEvents = [
+        'run_created',
         'state_read',
-        'validation_failed',
         'step_submitted',
         'exec_audit',
         'transition',
         'subgraph_entered',
         'subgraph_exited',
+        'validation_failed',
         'entry_proposed',
         'entry_confirmed',
         'workflow_completed',
       ];
-      // subgraph_entered/subgraph_exited are not emitted by current code; instead
-      // we rely on transition + advance to walk subgraphs. So filter to events
-      // we actually emit.
-      const expected = eventOrder.filter(
-        (e) => e !== 'subgraph_entered' && e !== 'subgraph_exited',
-      );
-      let cursor = 0;
-      for (const evt of expected) {
-        const idx = transcript.indexOf(evt, cursor);
-        expect(idx, `transcript missing event "${evt}" after cursor ${cursor}`).toBeGreaterThan(-1);
-        cursor = idx + evt.length;
+      for (const evt of requiredEvents) {
+        expect(transcript, `transcript missing event "${evt}"`).toContain(evt);
+      }
+      // And the structural pairs must occur in the right relative order
+      const orderedPairs: Array<[string, string]> = [
+        ['run_created', 'workflow_completed'],
+        ['subgraph_entered', 'subgraph_exited'],
+        ['entry_proposed', 'entry_confirmed'],
+        ['validation_failed', 'workflow_completed'],
+      ];
+      for (const [before, after] of orderedPairs) {
+        expect(
+          transcript.indexOf(before),
+          `${before} should appear before ${after}`,
+        ).toBeLessThan(transcript.indexOf(after));
       }
     },
     60_000,

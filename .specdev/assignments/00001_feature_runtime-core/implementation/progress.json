@@ -18,87 +18,101 @@
     },
     {
       "number": 3,
-      "status": "in_progress",
+      "status": "completed",
       "started_at": "2026-05-13T06:12:53Z",
-      "completed_at": null
+      "completed_at": "2026-05-13T06:14:10Z",
+      "summary": "parseGraph() with JSONC parse, Zod validation, ref resolution, cycle detection (visiting-stack DFS). Named error types: MissingWorkflowError, InvalidWorkflowError, MissingNodeFolderError, MissingSubgraphError, CyclicRefError. 7 unit cases passing."
     },
     {
       "number": 4,
-      "status": "pending",
-      "started_at": null,
-      "completed_at": null
+      "status": "completed",
+      "started_at": "2026-05-13T06:14:35Z",
+      "completed_at": "2026-05-13T06:15:18Z",
+      "summary": "State store with auto-init run lifecycle, atomic writes, Zod load validation, three named errors. 6 unit cases passing."
     },
     {
       "number": 5,
-      "status": "pending",
-      "started_at": null,
-      "completed_at": null
+      "status": "completed",
+      "started_at": "2026-05-13T06:15:28Z",
+      "completed_at": "2026-05-13T06:15:56Z",
+      "summary": "resolveWorkNode reads instruction.md, loads schema.ts via tsx, enforces handoff_summary z.string().min(40).max(500) by introspecting _def.checks. Memoized. Four error types."
     },
     {
       "number": 6,
-      "status": "pending",
-      "started_at": null,
-      "completed_at": null
+      "status": "completed",
+      "started_at": "2026-05-13T06:16:02Z",
+      "completed_at": "2026-05-13T06:16:16Z",
+      "summary": "appendEvent writes markdown transcript entries. TranscriptEventType union covers all design event vocabulary."
     },
     {
       "number": 7,
-      "status": "pending",
-      "started_at": null,
-      "completed_at": null
+      "status": "completed",
+      "started_at": "2026-05-13T06:16:38Z",
+      "completed_at": "2026-05-13T06:18:02Z",
+      "summary": "graph-walk helper + neighborhood/overview generators. 6 unit cases passing covering top-level structure, you-are-here marker, breadcrumb, prior outputs in full, next nodes with purposes, attempt count."
     },
     {
       "number": 8,
-      "status": "pending",
-      "started_at": null,
-      "completed_at": null
+      "status": "completed",
+      "started_at": "2026-05-13T06:18:06Z",
+      "completed_at": "2026-05-13T06:18:46Z",
+      "summary": "propose/confirm/pop with modal stack, depth cap 2. Three named errors. 8 unit cases."
     },
     {
       "number": 9,
-      "status": "pending",
-      "started_at": null,
-      "completed_at": null
+      "status": "completed",
+      "started_at": "2026-05-13T06:18:51Z",
+      "completed_at": "2026-05-13T06:19:13Z",
+      "summary": "MapExpr dot-traversal evaluator + applyInputMap/applyOutputMap. Error on missing path. Subgraph output scope is {outputs, input}."
     },
     {
       "number": 10,
-      "status": "pending",
-      "started_at": null,
-      "completed_at": null
+      "status": "completed",
+      "started_at": "2026-05-13T06:19:17Z",
+      "completed_at": "2026-05-13T06:19:30Z",
+      "summary": "retry counter primitives + exec audit recorder (writes to transcript)."
     },
     {
       "number": 11,
-      "status": "pending",
-      "started_at": null,
-      "completed_at": null
+      "status": "completed",
+      "started_at": "2026-05-13T06:21:23Z",
+      "completed_at": "2026-05-13T06:22:38Z",
+      "summary": "state command + supporting edges/scope/advance modules. Auto-advances past markers and subgraph descents. Three response shapes (work/complete/pending_confirmation). 27 unit cases still passing."
     },
     {
       "number": 12,
-      "status": "pending",
-      "started_at": null,
-      "completed_at": null
+      "status": "completed",
+      "started_at": "2026-05-13T06:22:48Z",
+      "completed_at": "2026-05-13T06:23:33Z",
+      "summary": "step command with confirm + output branches, schema validation + retry + user gate, proposed_jump → pending_confirmation, normal edge transition + auto-advance, five response shapes. Typecheck clean."
     },
     {
       "number": 13,
-      "status": "pending",
-      "started_at": null,
-      "completed_at": null
+      "status": "completed",
+      "started_at": "2026-05-13T06:23:41Z",
+      "completed_at": "2026-05-13T06:24:35Z",
+      "summary": "Templates: AGENT.md.tmpl (full protocol contract) + workflow.json.tmpl. Commands: validate parses+resolves every node; init writes templates with marker-aware --update."
     },
     {
       "number": 14,
-      "status": "pending",
-      "started_at": null,
-      "completed_at": null
+      "status": "completed",
+      "started_at": "2026-05-13T06:24:40Z",
+      "completed_at": "2026-05-13T06:25:27Z",
+      "summary": "cli.ts argv parser + dispatch + JSON emit + structured error to stderr. --help works."
     },
     {
       "number": 15,
-      "status": "pending",
-      "started_at": null,
-      "completed_at": null
+      "status": "completed",
+      "started_at": "2026-05-13T06:25:38Z",
+      "completed_at": "2026-05-13T06:27:00Z",
+      "summary": "examples/minimal workflow with subgraph, inline+spawn, free-entry modal, inputMap+outputMap. Also fixed cross-instance zod detection in resolver (duck-typing via _def.typeName)."
     },
     {
       "number": 16,
-      "status": "pending",
-      "started_at": null,
-      "completed_at": null
+      "status": "completed",
+      "started_at": "2026-05-13T06:27:37Z",
+      "completed_at": "2026-05-13T06:31:55Z",
+      "summary": "E2E stub host + minimal acceptance test exercising kickoff, subgraph entry with inputMap, inline+spawn, schema retry, modal jump with confirm, modal pop. Also fixed modal semantics: pending_confirmation now carries resume_path. All 28 tests pass. LOC: 2114 in src/ (over plan's 500-700; estimate was optimistic, functionality matches design)."
     }
   ]
 }

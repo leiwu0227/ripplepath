@@ -7,6 +7,7 @@ import {
   type ActiveRunPointerJson,
 } from './state-schema.js';
 import { type ParsedGraph, type RunState, RipplepathError, START_NODE } from '../graph/types.js';
+import { appendEvent } from './transcript.js';
 
 export class DanglingActiveError extends RipplepathError {
   constructor(activeJsonPath: string, expectedRunDir: string) {
@@ -122,6 +123,10 @@ export function loadOrInitRun(rootPath: string, graph: ParsedGraph): { state: Ru
   const transcriptPath = path.join(runDir(rootPath, runId), 'transcript.md');
   fs.writeFileSync(transcriptPath, '', 'utf8');
   atomicWriteJson(activeJsonPath(rootPath), { run_id: runId, workflow_path: workflowPath });
+  appendEvent(rootPath, runId, {
+    type: 'run_created',
+    body: { run_id: runId, workflow_path: workflowPath, goal: graph.goal },
+  });
   return { state: state as RunState, runId };
 }
 

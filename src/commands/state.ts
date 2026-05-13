@@ -7,7 +7,8 @@ import { resolveWorkNode } from '../node/resolver.js';
 import { generateOverview, generateNeighborhood } from '../runtime/neighborhood.js';
 import { advanceStructural } from '../runtime/advance.js';
 import { appendEvent } from '../runtime/transcript.js';
-import { RipplepathError, type WorkNode } from '../graph/types.js';
+import { RipplepathError, type WorkNode, type FreeEntry } from '../graph/types.js';
+import { locate } from '../runtime/graph-walk.js';
 
 export class MissingWorkflowRootError extends RipplepathError {
   constructor(rootPath: string) {
@@ -32,6 +33,7 @@ export interface StateResponseWork {
   overview: string;
   neighborhood: string;
   attempt: number;
+  free_entries: FreeEntry[];
 }
 
 export interface StateResponseComplete {
@@ -83,7 +85,7 @@ export async function runStateCommand(opts: StateOptions = {}): Promise<StateRes
     };
   }
 
-  const result = advanceStructural(state, graph);
+  const result = advanceStructural(state, graph, { rootPath, runId });
   if (result.mutated) {
     writeState(rootPath, runId, state);
   }
@@ -109,6 +111,7 @@ export async function runStateCommand(opts: StateOptions = {}): Promise<StateRes
     body: { node_id: work.id, attempt: state.current.attempt },
   });
 
+  const located = locate(graph, state.current.path);
   return {
     status: 'work',
     run_id: runId,
@@ -119,5 +122,6 @@ export async function runStateCommand(opts: StateOptions = {}): Promise<StateRes
     overview: generateOverview(graph, state.current.path),
     neighborhood: generateNeighborhood(graph, state.current.path, state),
     attempt: state.current.attempt,
+    free_entries: located.graph.entries,
   };
 }

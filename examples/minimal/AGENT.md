@@ -16,7 +16,8 @@ ripplepath step --output '{...}' --exec-used inline
 …until the response is `{ "status": "complete" }`.
 
 Note: `analyze.refine` is `exec: spawn` to exercise that branch of the host
-protocol. The other nodes are `exec: inline`.
+protocol. The other nodes are `exec: inline`. Available free entries appear in
+the response's `free_entries` field.
 
 <!-- BEGIN workflow-specific guidance -->
 <!-- END workflow-specific guidance -->

@@ -17,6 +17,7 @@ import { MissingWorkflowRootError } from './state.js';
 import {
   RipplepathError,
   type WorkNode,
+  type FreeEntry,
   END_NODE,
 } from '../graph/types.js';
 
@@ -68,6 +69,7 @@ export interface StepResponseWork {
   overview: string;
   neighborhood: string;
   attempt: number;
+  free_entries: FreeEntry[];
 }
 
 export interface StepResponseComplete {
@@ -273,7 +275,7 @@ async function buildAdvanceResponse(
   state: Awaited<ReturnType<typeof loadOrInitRun>>['state'],
 ): Promise<StepResponse> {
   // Auto-advance past markers / subgraph descents
-  const result = advanceStructural(state, graph);
+  const result = advanceStructural(state, graph, { rootPath, runId });
   writeState(rootPath, runId, state);
 
   if (result.kind === 'complete') {
@@ -292,6 +294,7 @@ async function buildAdvanceResponse(
     $refStrategy: 'none',
   });
 
+  const located = locate(graph, state.current.path);
   return {
     status: 'work',
     run_id: runId,
@@ -302,6 +305,7 @@ async function buildAdvanceResponse(
     overview: generateOverview(graph, state.current.path),
     neighborhood: generateNeighborhood(graph, state.current.path, state),
     attempt: state.current.attempt,
+    free_entries: located.graph.entries,
   };
 }
 
