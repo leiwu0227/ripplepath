@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "goal": "REPLACE ME with a one-sentence statement of what this workflow is for.",
+  "nodes": [
+    {
+      "id": "start_here",
+      "exec": "inline",
+      "node": "./nodes/start_here",
+      "purpose": "Kick off the workflow."
+    }
+  ],
+  "edges": [
+    { "from": "__start__", "to": "start_here" },
+    { "from": "start_here", "to": "__end__" }
+  ],
+  "entries": []
+}

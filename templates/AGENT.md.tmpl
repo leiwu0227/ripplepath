@@ -1,0 +1,106 @@
+# ripplepath workflow — host agent guide
+
+This document is the protocol contract for any host agent driving this
+workflow via the `ripplepath` CLI. Read it before doing anything else; re-read
+it any time you feel disoriented.
+
+## The two commands
+
+The framework exposes exactly two runtime commands. Everything you do happens
+through them.
+
+| Command | When |
+|---|---|
+| `ripplepath state` | Always first. Returns the current node's instruction, output schema, exec mode, and surrounding context. Idempotent — safe to re-call any time to re-anchor. |
+| `ripplepath step --output <json> --exec-used <inline\|spawn>` | After you have produced a valid output. Submits it; the CLI validates and transitions. |
+
+That's the whole protocol. Every other concept (resume, history, jumps) flows
+through these two.
+
+## The basic loop
+
+1. `ripplepath state` → read the response JSON
+2. Read `instruction`, the surrounding `overview` and `neighborhood`, and the
+   `output_schema`
+3. Do the work according to the `exec` field (see below). Produce JSON output
+   that satisfies `output_schema`
+4. `ripplepath step --output '<your-json>' --exec-used <mode>` → read the new
+   state from the response and continue
+5. When the response is `{ "status": "complete" }`, the workflow is done
+
+## Exec modes (binding)
+
+The `exec` field on each work node tells you how to do the work. This is a
+**binding directive** — you do not get to choose:
+
+- `exec: "inline"` — do the work yourself in your current context. Read the
+  instruction, reason, produce the output JSON.
+- `exec: "spawn"` — spawn a fresh sub-agent (use whatever sub-agent /
+  Task primitive your environment provides). Pass the instruction and the
+  output schema to it. Receive its structured output.
+
+When you call `step`, set `--exec-used` to whichever mode you actually used.
+If you cannot honor the requested mode (for example, your environment has no
+sub-agent primitive but the node requires `exec: spawn`), exit with an error.
+Do not silently degrade.
+
+## Required output field: `handoff_summary`
+
+Every node's output schema includes a mandatory `handoff_summary` field
+(40–500 characters). Write this for the *next node*, not for the user. It is
+a short paragraph capturing what you did, what was decided, and what the next
+step needs to know. It replaces the full transcript in downstream context, so
+keep it tight and informative.
+
+## Validation failures
+
+If your output does not satisfy the schema, `step` returns
+`{ "status": "validation_error", "errors": [...] }`. Fix the output and call
+`step` again. After `max_retries` attempts (default 3), the run returns
+`{ "status": "user_gate_failure" }` and waits for human intervention.
+
+## Free-entry proposals
+
+If the workflow exposes free entries (visible in `state.overview.free_entries`),
+you may propose a jump to one by including this in your output:
+
+```json
+{
+  "...your normal output...": "...",
+  "handoff_summary": "...",
+  "proposed_jump": {
+    "entry_id": "<entry-id-from-overview>",
+    "reason": "<why this jump now>"
+  }
+}
+```
+
+The CLI will validate your output, then instead of transitioning, return
+`{ "status": "pending_confirmation", "proposal": { "proposal_id": "...", ... } }`.
+
+Surface the `proposal.message` to the user and ask for approval. Then call:
+
+```sh
+ripplepath step --confirm <proposal_id> --decision approved   # or rejected
+```
+
+The CLI executes the jump (modal push or replace) only on approval. Never act
+on the proposal without explicit user confirmation.
+
+## Re-anchoring
+
+Whenever you feel you have lost the thread inside a long node — perhaps you
+started reasoning about the wrong step — re-call `ripplepath state`. It is
+idempotent and re-emits the full overview, neighborhood, and instruction.
+
+## State is the truth, conversation is not
+
+`state.json` is the source of truth for what has happened. If your memory
+disagrees with `ripplepath state`, the CLI wins.
+
+<!-- BEGIN workflow-specific guidance -->
+<!-- Consumer CLIs (specdev, oceanshed, oceanlive, etc.) may append
+     workflow-specific notes between these markers. `ripplepath init --update`
+     refreshes everything OUTSIDE these markers without touching what is
+     between them. -->
+<!-- END workflow-specific guidance -->
