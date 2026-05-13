@@ -1,9 +1,9 @@
 import { type ExecMode } from '../node/executor.js';
-import { RipplepathError, type FreeEntry } from '../graph/types.js';
-export declare class NotAtWorkNodeError extends RipplepathError {
+import { RipplegraphError, type FreeEntry } from '../graph/types.js';
+export declare class NotAtWorkNodeError extends RipplegraphError {
     constructor();
 }
-export declare class MissingArgumentError extends RipplepathError {
+export declare class MissingArgumentError extends RipplegraphError {
     constructor(details: string);
 }
 export interface StepOptions {

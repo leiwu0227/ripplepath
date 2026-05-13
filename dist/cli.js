@@ -2,7 +2,7 @@ import { runStateCommand } from './commands/state.js';
 import { runStepCommand } from './commands/step.js';
 import { runValidateCommand } from './commands/validate.js';
 import { runInitCommand } from './commands/init.js';
-import { RipplepathError } from './graph/types.js';
+import { RipplegraphError } from './graph/types.js';
 function parseArgs(argv) {
     const [command = '', ...rest] = argv;
     const flags = {};
@@ -30,7 +30,7 @@ function emitJson(payload) {
     process.stdout.write(JSON.stringify(payload, null, 2) + '\n');
 }
 function emitError(err) {
-    if (err instanceof RipplepathError) {
+    if (err instanceof RipplegraphError) {
         process.stderr.write(JSON.stringify({ status: 'error', code: err.code, message: err.message }, null, 2) + '\n');
     }
     else {
@@ -38,7 +38,7 @@ function emitError(err) {
         process.stderr.write(JSON.stringify({ status: 'error', code: 'E_INTERNAL', message: e.message, stack: e.stack }, null, 2) + '\n');
     }
 }
-const HELP = `ripplepath — host-agent-driven workflow runtime
+const HELP = `ripplegraph — host-agent-driven workflow runtime
 
 Commands:
   state                              Read current state (auto-inits on first call)
@@ -80,7 +80,7 @@ async function main(argv) {
                         return JSON.parse(rawOutput);
                     }
                     catch (e) {
-                        throw new RipplepathError('E_BAD_JSON', `--output is not valid JSON: ${e.message}`);
+                        throw new RipplegraphError('E_BAD_JSON', `--output is not valid JSON: ${e.message}`);
                     }
                 })()
                 : undefined;

@@ -1,5 +1,5 @@
-import { RipplepathError } from '../graph/types.js';
-export declare class MissingWorkflowRootError extends RipplepathError {
+import { RipplegraphError } from '../graph/types.js';
+export declare class MissingWorkflowRootError extends RipplegraphError {
     constructor(rootPath: string);
 }
 export interface ValidateResponse {

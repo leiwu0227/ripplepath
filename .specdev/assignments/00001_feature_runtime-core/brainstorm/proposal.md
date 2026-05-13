@@ -1,4 +1,4 @@
-# ripplepath runtime-core (v0)
+# ripplegraph runtime-core (v0)
 
 Build a small, host-agent-driven workflow framework that gives LLM-powered CLIs
 a deterministic graph runtime. The graph owns flow; the LLM is free to explore
@@ -13,7 +13,7 @@ input/output mapping, neighborhood + workflow-overview context generation, free
 latch entries with user-confirmed jumps, append-only transcript, and JSON-on-disk
 state — plus one worked example workflow that exercises every mechanic. The
 framework never calls an LLM directly: execution stays in the host agent (Claude
-Code, Codex, etc.), which calls ripplepath between steps. Success means
+Code, Codex, etc.), which calls ripplegraph between steps. Success means
 specdev-cli, oceanshed-cli, and oceanlive-cli can later migrate by writing only
 their subgraph definitions and a top-level `workflow.json`, with no runtime
 customization.

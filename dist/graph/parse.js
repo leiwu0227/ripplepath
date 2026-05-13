@@ -2,28 +2,28 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { parse as parseJsonc } from 'jsonc-parser';
 import { workflowJsonSchema } from './schema.js';
-import { RipplepathError, } from './types.js';
-class MissingWorkflowError extends RipplepathError {
+import { RipplegraphError, } from './types.js';
+class MissingWorkflowError extends RipplegraphError {
     constructor(rootPath) {
         super('E_MISSING_WORKFLOW', `no workflow.json found at: ${rootPath}`);
     }
 }
-class InvalidWorkflowError extends RipplepathError {
+class InvalidWorkflowError extends RipplegraphError {
     constructor(rootPath, details) {
         super('E_INVALID_WORKFLOW', `invalid workflow.json at ${rootPath}: ${details}`);
     }
 }
-class MissingNodeFolderError extends RipplepathError {
+class MissingNodeFolderError extends RipplegraphError {
     constructor(nodeId, expectedPath) {
         super('E_MISSING_NODE_FOLDER', `node "${nodeId}" expected folder with instruction.md and schema.ts at: ${expectedPath}`);
     }
 }
-class MissingSubgraphError extends RipplepathError {
+class MissingSubgraphError extends RipplegraphError {
     constructor(nodeId, expectedPath) {
         super('E_MISSING_SUBGRAPH', `subgraph node "${nodeId}" expected folder containing workflow.json at: ${expectedPath}`);
     }
 }
-class CyclicRefError extends RipplepathError {
+class CyclicRefError extends RipplegraphError {
     constructor(cycle) {
         super('E_CYCLIC_REF', `subgraph reference cycle detected: ${cycle.join(' -> ')}`);
     }

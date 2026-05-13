@@ -1,5 +1,5 @@
-import { START_NODE, END_NODE, RipplepathError, } from '../graph/types.js';
-export class PathNotFoundError extends RipplepathError {
+import { START_NODE, END_NODE, RipplegraphError, } from '../graph/types.js';
+export class PathNotFoundError extends RipplegraphError {
     constructor(path, detail) {
         super('E_PATH_NOT_FOUND', `cannot locate path [${path.join(' > ')}]: ${detail}`);
     }

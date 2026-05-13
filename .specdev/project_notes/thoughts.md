@@ -2,11 +2,11 @@
 
 ## Where we are
 
-ripplepath now lives at `/mnt/h/ripplepulse/lib/ripplepath/` (own repo,
-`github:leiwu0227/ripplepath`). The move out of oceanwave is done; all
+ripplegraph now lives at `/mnt/h/ripplepulse/lib/ripplegraph/` (own repo,
+`github:leiwu0227/ripplegraph`). The move out of oceanwave is done; all
 `.specdev/` assignment state moved with it intact.
 
-Active assignment: **00002 — dummy CLI consuming ripplepath for end-to-end
+Active assignment: **00002 — dummy CLI consuming ripplegraph for end-to-end
 framework testing**. State: `brainstorm_checkpoint_ready` — proposal.md
 and design.md are written but **not yet reviewed or approved**. The
 checkpoint was reached but the review choice was paused for the
@@ -16,12 +16,12 @@ repo-move + install-path discussions.
 
 - **Name:** `demoflow`
 - **Shape:** Shape A — scaffolder-only consumer. Only command is
-  `demoflow init`. After init, the user calls `ripplepath state` / `step`
+  `demoflow init`. After init, the user calls `ripplegraph state` / `step`
   directly. No wrapping (`demoflow state`/`step` is Shape B, deferred to a
   later assignment, likely specdev-cli proper).
 - **Bundled workflow:** commit-message drafter. Four work nodes:
   `gather → analyze → draft → confirm`. No subgraph (subgraphs already
-  covered by ripplepath's own v0 E2E). Exercises:
+  covered by ripplegraph's own v0 E2E). Exercises:
   - `exec: inline` and `exec: spawn`
   - A node's `scripts/` folder (the gather node has
     `scripts/collect-git-status.sh`)
@@ -40,17 +40,17 @@ Three options, framed by what each gives vs. costs:
 
 | Option | Path | What it gives | What it costs |
 |---|---|---|---|
-| **A** | Inside ripplepath repo at `packages/demoflow/` | Tight dev loop; change ripplepath, immediately see effect via `file:../..` | Conflates framework and consumer in one repo; `file:../..` is a within-repo path real consumers won't use |
-| **B** | Sibling directory next to ripplepath (e.g. `/mnt/h/ripplepulse/lib/demoflow/`) | Real cross-repo separation; matches "external consumer" mental model; still close enough to develop in tandem | Two repos; `file:../demoflow-or-ripplepath` dep path; small extra setup |
-| **C** | Alongside the user's other CLI fleet (path TBD now that ripplepath has left oceanwave) | Strongest separation; treats demoflow as a real member of the CLI fleet | Furthest from ripplepath physically; awkward during co-development |
+| **A** | Inside ripplegraph repo at `packages/demoflow/` | Tight dev loop; change ripplegraph, immediately see effect via `file:../..` | Conflates framework and consumer in one repo; `file:../..` is a within-repo path real consumers won't use |
+| **B** | Sibling directory next to ripplegraph (e.g. `/mnt/h/ripplepulse/lib/demoflow/`) | Real cross-repo separation; matches "external consumer" mental model; still close enough to develop in tandem | Two repos; `file:../demoflow-or-ripplegraph` dep path; small extra setup |
+| **C** | Alongside the user's other CLI fleet (path TBD now that ripplegraph has left oceanwave) | Strongest separation; treats demoflow as a real member of the CLI fleet | Furthest from ripplegraph physically; awkward during co-development |
 
 Working hypothesis: **Option B** — `/mnt/h/ripplepulse/lib/demoflow/`,
-sibling to ripplepath. That mirrors how real consumer CLIs will look
+sibling to ripplegraph. That mirrors how real consumer CLIs will look
 (external package boundary) and still keeps co-development practical.
 Confirm with user before kicking off the brainstorm reviewloop.
 
 The current `design.md` reflects **Option A** (`packages/demoflow/`
-inside the ripplepath repo). Sections that change if we pick B/C:
+inside the ripplegraph repo). Sections that change if we pick B/C:
 
 - "Repo layout (this assignment introduces)" — change from
   `packages/demoflow/` to the chosen sibling path
@@ -63,7 +63,7 @@ manual acceptance via Claude Code) doesn't change with the location.
 ## Install-path constraint (added 2026-05-13)
 
 During the post-move shakedown we tried to make
-`npm install -g github:leiwu0227/ripplepath` work as a "stable install"
+`npm install -g github:leiwu0227/ripplegraph` work as a "stable install"
 command. It does not, and **cannot** with npm 10.x or 11.x — see
 `.claude/projects/.../memory/project_install_path.md` for the full
 post-mortem. Two unfixable npm bugs collide on the global-install path
@@ -72,20 +72,20 @@ nested layout).
 
 What this means for demoflow:
 
-- **Project-local install of ripplepath works fine with npm.** esbuild
+- **Project-local install of ripplegraph works fine with npm.** esbuild
   gets hoisted; no race. So demoflow's planned
   `npm install <abs-path-to-demoflow>` flow is unaffected — keep it.
 - **If demoflow ever gets a "stable global install" story** (e.g.
-  `npm install -g github:leiwu0227/demoflow` once it bundles ripplepath),
+  `npm install -g github:leiwu0227/demoflow` once it bundles ripplegraph),
   that path will hit the same global-nested-layout bug. End users would
   need `pnpm add -g github:...` instead. Worth noting in demoflow's
   README but not a v0 design constraint.
-- ripplepath's current install story for end users:
-  `pnpm add -g github:leiwu0227/ripplepath`. dist/ is committed to git;
+- ripplegraph's current install story for end users:
+  `pnpm add -g github:leiwu0227/ripplegraph`. dist/ is committed to git;
   run `npm run build` before each commit that touches `src/`.
 
 This is a temporary state. Long-term fix is `npm publish` (tarball
-install path is verified working) — deferred until ripplepath stabilizes.
+install path is verified working) — deferred until ripplegraph stabilizes.
 
 ## 00002 validation findings (2026-05-13)
 
@@ -107,7 +107,7 @@ at the framework's edges, not in demoflow. Carry these into the v0.1 follow-up.
   protocol from per-workflow playbook.
 
 **Framework friction (none of this is a demoflow issue)**
-1. **cwd handling.** `ripplepath state` requires cwd inside `.demoflow/`, but
+1. **cwd handling.** `ripplegraph state` requires cwd inside `.demoflow/`, but
    a node's script may want cwd at the project root. CLI should walk up
    looking for `.<consumer>/workflow.json` (the way git finds `.git/`).
 2. **Start/restart protocol gap.** No `start`/`reset`/new-run path in the
@@ -135,7 +135,7 @@ two-command abstraction. v0.1 assignment scope — to be opened as 00003.
 
 ## Other notes worth carrying forward
 
-- The v0 ripplepath runtime is feature-complete and codex-approved
+- The v0 ripplegraph runtime is feature-complete and codex-approved
   (assignment 00001 closed). 30 tests pass (`vitest run`).
 - The framework's runtime LOC came in at ~2,150 — well over the plan's
   500-700 estimate. Functionality matches the design; the estimate was
@@ -154,11 +154,11 @@ two-command abstraction. v0.1 assignment scope — to be opened as 00003.
   JSON is the canonical artifact and a visualizer is straightforward to
   bolt on later.
 
-## Demoflow v0 usage + the "ripplepath should bundle zod" proposal (added 2026-05-13)
+## Demoflow v0 usage + the "ripplegraph should bundle zod" proposal (added 2026-05-13)
 
 Captured from the demoflow-cli session that shipped `demoflow init` v0
-against globally-installed ripplepath. Two parts: how demoflow is
-actually meant to be used, and a follow-up ripplepath assignment idea
+against globally-installed ripplegraph. Two parts: how demoflow is
+actually meant to be used, and a follow-up ripplegraph assignment idea
 that fell out of live testing.
 
 ### How demoflow v0 is used in practice
@@ -178,7 +178,7 @@ npm i zod@^3.25
 Then open the directory in Claude Code and tell it:
 
 > Drive the workflow at `.demoflow/` to completion. Start by running
-> `ripplepath state --workflow-root .demoflow`.
+> `ripplegraph state --workflow-root .demoflow`.
 
 Claude reads `.demoflow/AGENT.md`, walks through
 `gather → analyze → draft → confirm`, and at the confirm step prints
@@ -190,7 +190,7 @@ the drafted commit message and asks the operator to approve / reject
 ```sh
 pnpm add -g /mnt/h/ripplepulse/lib/cli/demoflow-cli
 which demoflow
-demoflow init --target /tmp/check && ripplepath validate --workflow-root /tmp/check/.demoflow
+demoflow init --target /tmp/check && ripplegraph validate --workflow-root /tmp/check/.demoflow
 ```
 
 Then in any project:
@@ -199,7 +199,7 @@ Then in any project:
 cd ~/path/to/your/project
 git add <files>
 demoflow init           # writes ./.demoflow/
-npm i zod@^3.25         # required — v3 specifically; ripplepath rejects v4
+npm i zod@^3.25         # required — v3 specifically; ripplegraph rejects v4
 ```
 
 **Expected lifecycle visible to the operator:**
@@ -207,10 +207,10 @@ npm i zod@^3.25         # required — v3 specifically; ripplepath rejects v4
 | Stage | What appears |
 |---|---|
 | `demoflow init` | Success message + 3 numbered next-step hints. `.demoflow/` folder appears in cwd. |
-| `ripplepath validate` | `{ "status": "ok", "workNodeCount": 4, "subgraphCount": 0 }` |
-| Claude `ripplepath state` (first) | gather node's instruction + schema |
+| `ripplegraph validate` | `{ "status": "ok", "workNodeCount": 4, "subgraphCount": 0 }` |
+| Claude `ripplegraph state` (first) | gather node's instruction + schema |
 | Claude runs `collect-git-status.sh` | Real git output piped into `raw_script_output` |
-| Claude `ripplepath step` | Transitions to analyze (spawn sub-agent classifies the change) |
+| Claude `ripplegraph step` | Transitions to analyze (spawn sub-agent classifies the change) |
 | → draft | Composes `<type>(<scope>)?: <subject>` |
 | → confirm | Claude prints the draft and asks the operator |
 | Operator answers | Workflow completes either way; `state.outputs.confirm.approved` is the readout |
@@ -220,83 +220,83 @@ npm i zod@^3.25         # required — v3 specifically; ripplepath rejects v4
 - `Cannot find package 'zod'` → `npm i zod@^3.25` in the project.
 - `output export must be a z.object; got typeName=object` → zod v4
   installed, downgrade with `npm i zod@^3.25`.
-- `ripplepath: command not found` → `pnpm add -g github:leiwu0227/ripplepath`.
+- `ripplegraph: command not found` → `pnpm add -g github:leiwu0227/ripplegraph`.
 - `.demoflow already exists` → add `--force`.
 
-**One UX gap caught during live testing:** ripplepath defaults
+**One UX gap caught during live testing:** ripplegraph defaults
 `--workflow-root` to cwd. Our Shape-A convention keeps cwd at the
 consumer project root (so the gather script's git commands work),
-which means every `ripplepath state` / `ripplepath step` call must
+which means every `ripplegraph state` / `ripplegraph step` call must
 explicitly pass `--workflow-root .demoflow`. The demoflow AGENT.md
-appendix didn't make this explicit in v0 — the canonical ripplepath
-protocol says "ripplepath state always first" and implicitly assumes
+appendix didn't make this explicit in v0 — the canonical ripplegraph
+protocol says "ripplegraph state always first" and implicitly assumes
 cwd is the workflow root. demoflow v0.1 should add a one-line
 "Invocation" section to the appendix to call this out.
 
-### The "ripplepath should bundle zod" proposal
+### The "ripplegraph should bundle zod" proposal
 
-**Problem.** Every consumer of a ripplepath workflow (demoflow today,
+**Problem.** Every consumer of a ripplegraph workflow (demoflow today,
 others later) has to:
 1. Install zod into the consumer project root.
-2. Pin it to `^3.25` because ripplepath's resolver only understands
+2. Pin it to `^3.25` because ripplegraph's resolver only understands
    zod-3 internals.
 3. Remember to use npm rather than pnpm in some cases (pnpm's
    content-addressable layout can confuse tsx's upward walk).
 
-This pushes a ripplepath runtime requirement onto every consumer CLI
-that builds on top of ripplepath. The dependency relationship is
+This pushes a ripplegraph runtime requirement onto every consumer CLI
+that builds on top of ripplegraph. The dependency relationship is
 really:
 
 ```
 consumer's templates → schema.ts → import zod
                                       ↑
-                            (ripplepath's contract)
+                            (ripplegraph's contract)
 ```
 
-zod isn't a demoflow concern; it's a ripplepath runtime concern.
+zod isn't a demoflow concern; it's a ripplegraph runtime concern.
 
 **Why the consumer carries it today.** When the host calls
-`ripplepath state`, ripplepath spawns tsx to load
+`ripplegraph state`, ripplegraph spawns tsx to load
 `.<consumer>/nodes/*/schema.ts`. Those files `import 'zod'`, and
 tsx defers to Node's module resolver, which walks up from the
 importing file looking for `node_modules/zod`. The walk hits the
 consumer project's `node_modules/zod` first — that's the only
 location currently populated.
 
-ripplepath being installed globally doesn't help. tsx walks up from
-the schema file, not from where the ripplepath binary lives.
+ripplegraph being installed globally doesn't help. tsx walks up from
+the schema file, not from where the ripplegraph binary lives.
 Node's **ESM resolver also does not consult `NODE_PATH`** — that
 mechanism only works for CommonJS `require()`, and our schemas are
 ESM (consumer CLIs write a `package.json` with `"type": "module"`
 inside their workflow root). So the only viable resolution path is
 having `node_modules/zod` somewhere on the upward walk.
 
-**Proposal.** Have `ripplepath init` write
-`<workflow-root>/node_modules/zod` itself, sourced from ripplepath's
+**Proposal.** Have `ripplegraph init` write
+`<workflow-root>/node_modules/zod` itself, sourced from ripplegraph's
 own bundled copy.
 
 Implementation sketch:
 
-1. Add `zod ^3.25` to ripplepath's `dependencies` (not peerDeps).
-   `pnpm add -g github:leiwu0227/ripplepath` then places zod next
-   to ripplepath in the global store.
-2. In `ripplepath init`, after writing `AGENT.md` / `workflow.json`
+1. Add `zod ^3.25` to ripplegraph's `dependencies` (not peerDeps).
+   `pnpm add -g github:leiwu0227/ripplegraph` then places zod next
+   to ripplegraph in the global store.
+2. In `ripplegraph init`, after writing `AGENT.md` / `workflow.json`
    / `runs/`, additionally:
-   - Resolve the path of ripplepath's bundled zod (via
+   - Resolve the path of ripplegraph's bundled zod (via
      `import.meta.resolve('zod')` or
      `require.resolve('zod', { paths: [...] })`).
    - Create `<workflow-root>/node_modules/zod` as a symlink on POSIX,
      with a recursive copy fallback for Windows-without-admin and
      non-symlink-capable filesystems.
-3. Document this in ripplepath's README and add a smoke test:
-   `ripplepath init` into a tmp dir + `ripplepath validate` **without
+3. Document this in ripplegraph's README and add a smoke test:
+   `ripplegraph init` into a tmp dir + `ripplegraph validate` **without
    the consumer installing anything** → `status: ok`.
 
 **Knock-on wins.**
 
 - Every consumer CLI inherits it for free — none of them have to
   think about zod.
-- One source of truth on the supported zod version. ripplepath
+- One source of truth on the supported zod version. ripplegraph
   maintainers know best (currently `^3.25` because of Zod-3-only
   internal introspection in `src/node/resolver.ts`).
 - The zod-v3-vs-v4 troubleshooting goes away in every consumer's
@@ -310,26 +310,26 @@ Implementation sketch:
 
 **Trade-offs.**
 
-- Changes `ripplepath init`'s contract — every workflow now gets a
+- Changes `ripplegraph init`'s contract — every workflow now gets a
   `node_modules/` next to it. Some users may find that surprising.
-  Mitigation: document it in the canonical AGENT.md and ripplepath
+  Mitigation: document it in the canonical AGENT.md and ripplegraph
   README.
 - Symlinks need a copy fallback (Windows without dev-mode admin,
   some CI mounts).
-- ripplepath ships heavier (~150 KB zod) — negligible for a global
+- ripplegraph ships heavier (~150 KB zod) — negligible for a global
   CLI.
 
 **Suggested next assignment in this repo.** Open as
-`ripplepath assignment "bundle zod into ripplepath init scaffolding"
+`ripplegraph assignment "bundle zod into ripplegraph init scaffolding"
 --type=feature --slug=bundle-zod-runtime`. Brainstorm should
 explicitly cover (a) symlink-vs-copy on init, (b) what happens on
-`ripplepath init --update` (re-create the link? leave it alone?),
+`ripplegraph init --update` (re-create the link? leave it alone?),
 (c) implications for any future workflow that might want a
-*different* zod version (probably "tough — ripplepath pins the
+*different* zod version (probably "tough — ripplegraph pins the
 contract"), and (d) whether the `<workflow-root>/node_modules/`
 should also include `tsx` or other dev runtime helpers (probably
-no — tsx is already bundled with ripplepath and runs in
-ripplepath's own process).
+no — tsx is already bundled with ripplegraph and runs in
+ripplegraph's own process).
 
 ## When you return
 

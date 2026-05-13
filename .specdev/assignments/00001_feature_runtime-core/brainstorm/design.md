@@ -1,6 +1,6 @@
 ## Overview
 
-ripplepath is a small, host-agent-driven workflow framework. A directed graph is
+ripplegraph is a small, host-agent-driven workflow framework. A directed graph is
 the deterministic skeleton of execution; nodes are units of agent work where
 LLMs can freely explore within schema-validated boundaries; the CLI is the
 runtime gatekeeper. The framework's value prop is drift containment — even when
@@ -8,9 +8,9 @@ LLM behavior drifts across models or sessions, the graph still owns control flow
 and the CLI rejects any output that doesn't satisfy the contract.
 
 This is the inverse shape of langgraph.js. There, the Node process owns the LLM
-loop. In ripplepath, the host agent owns the LLM loop; ripplepath owns the state
+loop. In ripplegraph, the host agent owns the LLM loop; ripplegraph owns the state
 machine and surfaces structured instructions and schemas to the host via two CLI
-commands. This decoupling makes ripplepath portable across host agents (Claude
+commands. This decoupling makes ripplegraph portable across host agents (Claude
 Code, Codex, plain shell) and reusable across host CLIs (specdev-cli,
 oceanshed-cli, oceanlive-cli, and future host-agent-driven CLIs).
 
@@ -55,10 +55,10 @@ Two commands, irreducible:
 
 | Command | Purpose |
 |---|---|
-| `ripplepath state` | Read or initialize. If an active run exists, returns its current state (workflow overview, neighborhood context, instruction, output schema, `exec` mode, available free entries, attempt count). If no active run exists, auto-creates one from `workflow.json` and returns the initial state. Idempotent — safe to re-call mid-node for re-anchoring. Accepts optional `--workflow-root <path>` when the host is not running in the workflow's cwd. |
-| `ripplepath step --output <json> --exec-used <mode>` | Submit the host agent's validated output. Atomic: validate against schema → write to state → evaluate outgoing edge → checkpoint → return next state. Also handles `proposed_jump` payloads for free-entry transitions (always user-confirmed). |
+| `ripplegraph state` | Read or initialize. If an active run exists, returns its current state (workflow overview, neighborhood context, instruction, output schema, `exec` mode, available free entries, attempt count). If no active run exists, auto-creates one from `workflow.json` and returns the initial state. Idempotent — safe to re-call mid-node for re-anchoring. Accepts optional `--workflow-root <path>` when the host is not running in the workflow's cwd. |
+| `ripplegraph step --output <json> --exec-used <mode>` | Submit the host agent's validated output. Atomic: validate against schema → write to state → evaluate outgoing edge → checkpoint → return next state. Also handles `proposed_jump` payloads for free-entry transitions (always user-confirmed). |
 
-A third command, `ripplepath init`, is part of v0 scope: it writes the
+A third command, `ripplegraph init`, is part of v0 scope: it writes the
 templated `AGENT.md` and scaffolds the user-facing folder. It is not part of the
 runtime protocol.
 
@@ -115,7 +115,7 @@ without changing the reference shape.
 ### Run lifecycle
 
 Run creation is implicit and owned by the CLI — the host never has to track
-whether a run exists. The rule, applied by `ripplepath state` on every call:
+whether a run exists. The rule, applied by `ripplegraph state` on every call:
 
 1. Resolve the workflow root (cwd by default, or `--workflow-root <path>`)
 2. If `<root>/runs/active.json` exists:
@@ -136,25 +136,25 @@ first-call ritual. The lifecycle is the CLI's responsibility.
 
 Errors are explicit:
 - No `workflow.json` at the workflow root → fail with a clear "no workflow
-  found at <root>; run `ripplepath init` first" message
+  found at <root>; run `ripplegraph init` first" message
 - Invalid `workflow.json` → fail with a Zod validation error pointing to the
   offending field
 - `active.json` references a missing run directory → fail with a corruption
   warning; recovery is a separate operational concern (out of scope for v0)
 
-`ripplepath init` (the file-scaffolding management command) is distinct and
+`ripplegraph init` (the file-scaffolding management command) is distinct and
 unchanged: it writes `AGENT.md`, a starter `workflow.json`, and an empty
 `runs/` directory. It does not create a run; the first `cli state` does.
 
 ### Execution boundary
 
-1. Host calls `ripplepath state` → receives workflow overview + neighborhood +
+1. Host calls `ripplegraph state` → receives workflow overview + neighborhood +
    instruction + schema + `exec` mode + free entries + attempt count
 2. Host does the work:
    - `exec: inline` → in its own context
    - `exec: spawn` → via its Task / sub-agent primitive (binding directive; host
      errors out if it cannot comply)
-3. Host calls `ripplepath step --output <json> --exec-used <mode>` → CLI
+3. Host calls `ripplegraph step --output <json> --exec-used <mode>` → CLI
    validates against schema, writes state, applies edge, transitions, returns
    the next state response
 4. On schema failure: retry up to `max_retries`, then escalate to user gate
@@ -213,7 +213,7 @@ Served on every `cli state` alongside the overview:
 - Edge logic is deterministic JavaScript; never LLM-decided
 - Spawn mode available for clean-context judgment nodes
 - `exec_used` audit signal recorded in transcript
-- `ripplepath validate` static check before running any graph
+- `ripplegraph validate` static check before running any graph
 
 ### Plugin surfaces (interfaces declared; only defaults ship in v0)
 
@@ -227,15 +227,15 @@ Served on every `cli state` alongside the overview:
 
 ## Distribution model
 
-ripplepath ships as an npm package. Two consumption modes are supported:
+ripplegraph ships as an npm package. Two consumption modes are supported:
 
-1. **Direct CLI use** — user installs `ripplepath` and `zod`, runs the
-   `ripplepath` binary on PATH directly.
+1. **Direct CLI use** — user installs `ripplegraph` and `zod`, runs the
+   `ripplegraph` binary on PATH directly.
 2. **Embedded in a host CLI** — specdev-cli, oceanshed-cli, etc. depend on
-   ripplepath and re-expose its commands. End users install only the host CLI;
-   ripplepath ships transitively. This is the primary consumption pattern.
+   ripplegraph and re-expose its commands. End users install only the host CLI;
+   ripplegraph ships transitively. This is the primary consumption pattern.
 
-ripplepath's runtime code is never duplicated into the user's workflow folder.
+ripplegraph's runtime code is never duplicated into the user's workflow folder.
 The user folder contains only workflow content (graph + instructions + schemas
 + state + transcript). User-authored `schema.ts` files are loaded at runtime via
 an embedded `tsx` / `jiti`-style loader, so users do not need a TypeScript build
@@ -244,7 +244,7 @@ step.
 ### Framework repo layout
 
 ```
-ripplepath/
+ripplegraph/
   src/
     cli.ts                          # binary entry — dispatch state/step/init/validate
     commands/
@@ -274,11 +274,11 @@ ripplepath/
       workflow.json
       nodes/
       subgraphs/
-  templates/                        # scaffolds written by `ripplepath init`
+  templates/                        # scaffolds written by `ripplegraph init`
     AGENT.md.tmpl
     workflow.json.tmpl
   bin/
-    ripplepath
+    ripplegraph
   package.json
   tsconfig.json
   README.md
@@ -318,20 +318,20 @@ all internal refs still resolve.
 
 `AGENT.md` lives at the workflow root and contains:
 
-1. **The universal ripplepath protocol** (same for every workflow):
-   - Call `ripplepath state` to start; read `overview`, `neighborhood`,
+1. **The universal ripplegraph protocol** (same for every workflow):
+   - Call `ripplegraph state` to start; read `overview`, `neighborhood`,
      `instruction`, `schema`, `exec`, and `free_entries` fields
    - For `exec: inline`, do the work in own context; for `exec: spawn`, use
      Task / sub-agent primitive — binding, no host discretion
-   - Submit result via `ripplepath step --output <json> --exec-used <mode>`
+   - Submit result via `ripplegraph step --output <json> --exec-used <mode>`
    - On schema failure, fix and retry; after retry cap the run gates for user
    - To propose a free-entry jump, include `proposed_jump` in the output; the
      CLI gates user confirmation
-   - Re-call `ripplepath state` any time to re-anchor mid-node
+   - Re-call `ripplegraph state` any time to re-anchor mid-node
 2. **Workflow-specific guidance** appended by the consumer CLI (e.g., "this
    workflow drives specdev assignments...").
 
-`ripplepath init` writes the templated `AGENT.md`. Re-running with `--update`
+`ripplegraph init` writes the templated `AGENT.md`. Re-running with `--update`
 refreshes the protocol section without touching the consumer's appendix.
 
 ## Success Criteria
@@ -356,7 +356,7 @@ refreshes the protocol section without touching the consumer's appendix.
 - Runtime: `jsonc-parser`, `zod-to-json-schema`, embedded `tsx` / `jiti`-style
   TS loader for user schemas
 - Node 20+
-- TypeScript (build-time only for ripplepath itself; users do not need their
+- TypeScript (build-time only for ripplegraph itself; users do not need their
   own TS build setup)
 
 ## Testing Approach
@@ -382,7 +382,7 @@ refreshes the protocol section without touching the consumer's appendix.
   Mitigation: separate later assignment; v0 aims for correct, not complete.
 - **TS loader for user schemas** (`tsx` / `jiti`) adds a small runtime cost and
   failure surface. Mitigation: schema files are loaded once per run, errors are
-  surfaced clearly through `ripplepath validate`.
+  surfaced clearly through `ripplegraph validate`.
 
 ## Open Questions
 
@@ -392,5 +392,5 @@ refreshes the protocol section without touching the consumer's appendix.
   parent node id
 - Whether `transcript.md` should be Markdown or JSONL — proposed: Markdown for
   v0 (human-readable beats machine-replayable at this stage)
-- Whether `ripplepath init` should accept a starter-template flag (`--from
+- Whether `ripplegraph init` should accept a starter-template flag (`--from
   specdev-skeleton` etc.) — deferred to v0.5

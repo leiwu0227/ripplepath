@@ -1,5 +1,5 @@
-import { RipplepathError } from '../graph/types.js';
-export declare class TemplateNotFoundError extends RipplepathError {
+import { RipplegraphError } from '../graph/types.js';
+export declare class TemplateNotFoundError extends RipplegraphError {
     constructor(templatePath: string);
 }
 export interface InitOptions {

@@ -1,10 +1,10 @@
 import path from 'node:path';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { RipplepathError } from '../graph/types.js';
+import { RipplegraphError } from '../graph/types.js';
 const MARKER_BEGIN = '<!-- BEGIN workflow-specific guidance -->';
 const MARKER_END = '<!-- END workflow-specific guidance -->';
-export class TemplateNotFoundError extends RipplepathError {
+export class TemplateNotFoundError extends RipplegraphError {
     constructor(templatePath) {
         super('E_NO_TEMPLATE', `template not found: ${templatePath}`);
     }
@@ -51,7 +51,7 @@ export async function runInitCommand(opts = {}) {
     const written = [];
     if (opts.update) {
         if (!fs.existsSync(agentMdPath)) {
-            throw new RipplepathError('E_NOTHING_TO_UPDATE', `--update was passed but no AGENT.md exists at ${agentMdPath}`);
+            throw new RipplegraphError('E_NOTHING_TO_UPDATE', `--update was passed but no AGENT.md exists at ${agentMdPath}`);
         }
         const existing = fs.readFileSync(agentMdPath, 'utf8');
         const appendix = extractAppendix(existing);
@@ -61,7 +61,7 @@ export async function runInitCommand(opts = {}) {
         return { status: 'updated', targetDir: target, filesWritten: written };
     }
     if (fs.existsSync(agentMdPath)) {
-        throw new RipplepathError('E_ALREADY_INITIALIZED', `${agentMdPath} already exists; pass --update to refresh the protocol section`);
+        throw new RipplegraphError('E_ALREADY_INITIALIZED', `${agentMdPath} already exists; pass --update to refresh the protocol section`);
     }
     fs.writeFileSync(agentMdPath, agentTemplate, 'utf8');
     written.push(agentMdPath);

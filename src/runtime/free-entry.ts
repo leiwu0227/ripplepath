@@ -4,19 +4,19 @@ import {
   type RunState,
   type FreeEntry,
   type PendingConfirmation,
-  RipplepathError,
+  RipplegraphError,
 } from '../graph/types.js';
 import { locate } from './graph-walk.js';
 
 export const MODAL_STACK_DEPTH_CAP = 2;
 
-export class UnknownEntryError extends RipplepathError {
+export class UnknownEntryError extends RipplegraphError {
   constructor(entryId: string) {
     super('E_UNKNOWN_ENTRY', `no free entry with id "${entryId}" in the active graph`);
   }
 }
 
-export class ModalDepthCapError extends RipplepathError {
+export class ModalDepthCapError extends RipplegraphError {
   constructor(depth: number) {
     super(
       'E_MODAL_DEPTH_CAP',
@@ -25,7 +25,7 @@ export class ModalDepthCapError extends RipplepathError {
   }
 }
 
-export class NoMatchingProposalError extends RipplepathError {
+export class NoMatchingProposalError extends RipplegraphError {
   constructor(givenId: string) {
     super(
       'E_NO_MATCHING_PROPOSAL',

@@ -2,9 +2,9 @@ import path from 'node:path';
 import fs from 'node:fs';
 import { parseGraph } from '../graph/parse.js';
 import { resolveWorkNode } from '../node/resolver.js';
-import { RipplepathError, type ParsedGraph } from '../graph/types.js';
+import { RipplegraphError, type ParsedGraph } from '../graph/types.js';
 
-export class MissingWorkflowRootError extends RipplepathError {
+export class MissingWorkflowRootError extends RipplegraphError {
   constructor(rootPath: string) {
     super(
       'E_NO_WORKFLOW_ROOT',

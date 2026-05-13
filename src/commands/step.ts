@@ -15,7 +15,7 @@ import { appendEvent } from '../runtime/transcript.js';
 import { locate } from '../runtime/graph-walk.js';
 import { MissingWorkflowRootError } from './state.js';
 import {
-  RipplepathError,
+  RipplegraphError,
   type WorkNode,
   type FreeEntry,
   END_NODE,
@@ -36,7 +36,7 @@ function resolveWorkflowRoot(workflowRoot: string | undefined): string {
   return abs;
 }
 
-export class NotAtWorkNodeError extends RipplepathError {
+export class NotAtWorkNodeError extends RipplegraphError {
   constructor() {
     super(
       'E_NOT_AT_WORK_NODE',
@@ -45,7 +45,7 @@ export class NotAtWorkNodeError extends RipplepathError {
   }
 }
 
-export class MissingArgumentError extends RipplepathError {
+export class MissingArgumentError extends RipplegraphError {
   constructor(details: string) {
     super('E_MISSING_ARG', details);
   }

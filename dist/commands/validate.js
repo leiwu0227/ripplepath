@@ -2,8 +2,8 @@ import path from 'node:path';
 import fs from 'node:fs';
 import { parseGraph } from '../graph/parse.js';
 import { resolveWorkNode } from '../node/resolver.js';
-import { RipplepathError } from '../graph/types.js';
-export class MissingWorkflowRootError extends RipplepathError {
+import { RipplegraphError } from '../graph/types.js';
+export class MissingWorkflowRootError extends RipplegraphError {
     constructor(rootPath) {
         super('E_NO_WORKFLOW_ROOT', `no workflow.json (or workflow.jsonc) found at ${rootPath}`);
     }

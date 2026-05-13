@@ -3,7 +3,7 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { tsImport } from 'tsx/esm/api';
 import { z } from 'zod';
-import { RipplepathError } from '../graph/types.js';
+import { RipplegraphError } from '../graph/types.js';
 // Cross-instance Zod detection. We use the documented `_def.typeName` rather
 // than `instanceof` because schemas the user imports may come from a
 // different Zod instance than ours (peer-dependency dual-load), in which
@@ -30,22 +30,22 @@ function getObjectShape(schema) {
     const shape = schema.shape;
     return shape ?? {};
 }
-export class MissingNodeAssetError extends RipplepathError {
+export class MissingNodeAssetError extends RipplegraphError {
     constructor(folderPath, asset) {
         super('E_MISSING_NODE_ASSET', `missing ${asset} in node folder: ${folderPath}`);
     }
 }
-export class InvalidSchemaModuleError extends RipplepathError {
+export class InvalidSchemaModuleError extends RipplegraphError {
     constructor(folderPath, details) {
         super('E_INVALID_SCHEMA_MODULE', `schema.ts in ${folderPath}: ${details}`);
     }
 }
-export class MissingHandoffSummaryError extends RipplepathError {
+export class MissingHandoffSummaryError extends RipplegraphError {
     constructor(folderPath) {
         super('E_MISSING_HANDOFF_SUMMARY', `schema.ts in ${folderPath} must declare a string output.handoff_summary field`);
     }
 }
-export class HandoffSummaryBoundsError extends RipplepathError {
+export class HandoffSummaryBoundsError extends RipplegraphError {
     constructor(folderPath, details) {
         super('E_HANDOFF_SUMMARY_BOUNDS', `schema.ts in ${folderPath}: handoff_summary ${details} — required: z.string().min(40).max(500)`);
     }
@@ -126,5 +126,5 @@ export async function resolveWorkNode(folderPath) {
 export function clearResolverCache() {
     cache.clear();
 }
-// re-export z so node schema files can `import { z } from "ripplepath"` if they prefer
+// re-export z so node schema files can `import { z } from "ripplegraph"` if they prefer
 export { z };

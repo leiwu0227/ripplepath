@@ -1,15 +1,15 @@
 import { z } from 'zod';
-import { RipplepathError, type ResolvedNodeAssets } from '../graph/types.js';
-export declare class MissingNodeAssetError extends RipplepathError {
+import { RipplegraphError, type ResolvedNodeAssets } from '../graph/types.js';
+export declare class MissingNodeAssetError extends RipplegraphError {
     constructor(folderPath: string, asset: string);
 }
-export declare class InvalidSchemaModuleError extends RipplepathError {
+export declare class InvalidSchemaModuleError extends RipplegraphError {
     constructor(folderPath: string, details: string);
 }
-export declare class MissingHandoffSummaryError extends RipplepathError {
+export declare class MissingHandoffSummaryError extends RipplegraphError {
     constructor(folderPath: string);
 }
-export declare class HandoffSummaryBoundsError extends RipplepathError {
+export declare class HandoffSummaryBoundsError extends RipplegraphError {
     constructor(folderPath: string, details: string);
 }
 export declare function resolveWorkNode(folderPath: string): Promise<ResolvedNodeAssets>;

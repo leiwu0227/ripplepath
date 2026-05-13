@@ -1,10 +1,10 @@
-import { RipplepathError } from '../graph/types.js';
-export class EdgeExpressionError extends RipplepathError {
+import { RipplegraphError } from '../graph/types.js';
+export class EdgeExpressionError extends RipplegraphError {
     constructor(expr, detail) {
         super('E_EDGE_EXPR', `edge "when" expression failed: ${expr} — ${detail}`);
     }
 }
-export class NoMatchingEdgeError extends RipplepathError {
+export class NoMatchingEdgeError extends RipplegraphError {
     constructor(fromId) {
         super('E_NO_MATCHING_EDGE', `no outgoing edge from "${fromId}" matched the current state`);
     }

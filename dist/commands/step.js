@@ -14,7 +14,7 @@ import { generateOverview, generateNeighborhood } from '../runtime/neighborhood.
 import { appendEvent } from '../runtime/transcript.js';
 import { locate } from '../runtime/graph-walk.js';
 import { MissingWorkflowRootError } from './state.js';
-import { RipplepathError, END_NODE, } from '../graph/types.js';
+import { RipplegraphError, END_NODE, } from '../graph/types.js';
 function resolveWorkflowRoot(workflowRoot) {
     const abs = workflowRoot
         ? path.isAbsolute(workflowRoot)
@@ -27,12 +27,12 @@ function resolveWorkflowRoot(workflowRoot) {
     }
     return abs;
 }
-export class NotAtWorkNodeError extends RipplepathError {
+export class NotAtWorkNodeError extends RipplegraphError {
     constructor() {
         super('E_NOT_AT_WORK_NODE', 'cli step --output requires the run to be at a work node; call cli state first');
     }
 }
-export class MissingArgumentError extends RipplepathError {
+export class MissingArgumentError extends RipplegraphError {
     constructor(details) {
         super('E_MISSING_ARG', details);
     }

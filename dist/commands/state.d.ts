@@ -1,5 +1,5 @@
-import { RipplepathError, type FreeEntry } from '../graph/types.js';
-export declare class MissingWorkflowRootError extends RipplepathError {
+import { RipplegraphError, type FreeEntry } from '../graph/types.js';
+export declare class MissingWorkflowRootError extends RipplegraphError {
     constructor(rootPath: string);
 }
 export interface StateOptions {

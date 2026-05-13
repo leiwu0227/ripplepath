@@ -6,10 +6,10 @@ import {
   type RunStateJson,
   type ActiveRunPointerJson,
 } from './state-schema.js';
-import { type ParsedGraph, type RunState, RipplepathError, START_NODE } from '../graph/types.js';
+import { type ParsedGraph, type RunState, RipplegraphError, START_NODE } from '../graph/types.js';
 import { appendEvent } from './transcript.js';
 
-export class DanglingActiveError extends RipplepathError {
+export class DanglingActiveError extends RipplegraphError {
   constructor(activeJsonPath: string, expectedRunDir: string) {
     super(
       'E_DANGLING_ACTIVE',
@@ -18,13 +18,13 @@ export class DanglingActiveError extends RipplepathError {
   }
 }
 
-export class InvalidStateError extends RipplepathError {
+export class InvalidStateError extends RipplegraphError {
   constructor(stateJsonPath: string, details: string) {
     super('E_INVALID_STATE', `invalid state.json at ${stateJsonPath}: ${details}`);
   }
 }
 
-export class InvalidActivePointerError extends RipplepathError {
+export class InvalidActivePointerError extends RipplegraphError {
   constructor(activeJsonPath: string, details: string) {
     super(
       'E_INVALID_ACTIVE',
@@ -137,7 +137,7 @@ export function writeState(rootPath: string, runId: string, state: RunState): vo
 export function readState(rootPath: string): { state: RunState; runId: string } {
   const pointer = readActivePointer(rootPath);
   if (!pointer) {
-    throw new RipplepathError(
+    throw new RipplegraphError(
       'E_NO_ACTIVE_RUN',
       `no active run at ${rootPath}; call loadOrInitRun first`,
     );

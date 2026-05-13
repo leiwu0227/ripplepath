@@ -1,11 +1,11 @@
-import { type ParsedGraph, type RunState, RipplepathError } from '../graph/types.js';
-export declare class DanglingActiveError extends RipplepathError {
+import { type ParsedGraph, type RunState, RipplegraphError } from '../graph/types.js';
+export declare class DanglingActiveError extends RipplegraphError {
     constructor(activeJsonPath: string, expectedRunDir: string);
 }
-export declare class InvalidStateError extends RipplepathError {
+export declare class InvalidStateError extends RipplegraphError {
     constructor(stateJsonPath: string, details: string);
 }
-export declare class InvalidActivePointerError extends RipplepathError {
+export declare class InvalidActivePointerError extends RipplegraphError {
     constructor(activeJsonPath: string, details: string);
 }
 export declare function loadOrInitRun(rootPath: string, graph: ParsedGraph): {

@@ -7,7 +7,7 @@
       "status": "completed",
       "started_at": "2026-05-13T05:57:42Z",
       "completed_at": "2026-05-13T05:59:19Z",
-      "summary": "Scaffolded npm package: package.json with deps (jsonc-parser, tsx, zod-to-json-schema, peer zod), tsconfig (Node 20+ ESM, strict, noUncheckedIndexedAccess), bin/ripplepath shim, src/index.ts placeholder, vitest config, .gitignore, README. Typecheck clean. No template content yet (Task 13)."
+      "summary": "Scaffolded npm package: package.json with deps (jsonc-parser, tsx, zod-to-json-schema, peer zod), tsconfig (Node 20+ ESM, strict, noUncheckedIndexedAccess), bin/ripplegraph shim, src/index.ts placeholder, vitest config, .gitignore, README. Typecheck clean. No template content yet (Task 13)."
     },
     {
       "number": 2,

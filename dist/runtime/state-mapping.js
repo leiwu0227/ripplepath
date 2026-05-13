@@ -1,5 +1,5 @@
-import { RipplepathError } from '../graph/types.js';
-export class MapExprResolutionError extends RipplepathError {
+import { RipplegraphError } from '../graph/types.js';
+export class MapExprResolutionError extends RipplegraphError {
     constructor(expr, detail) {
         super('E_MAP_EXPR', `cannot resolve map expression "${expr}": ${detail}`);
     }

@@ -15,7 +15,7 @@ import type { ParsedGraph } from '../../src/graph/types.js';
 let tmpRoot: string;
 
 beforeEach(() => {
-  tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'ripplepath-state-'));
+  tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'ripplegraph-state-'));
 });
 
 afterEach(() => {

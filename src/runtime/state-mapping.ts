@@ -1,7 +1,7 @@
-import { type MapExpr, type SubgraphState, RipplepathError } from '../graph/types.js';
+import { type MapExpr, type SubgraphState, RipplegraphError } from '../graph/types.js';
 import type { ScopeState } from './scope.js';
 
-export class MapExprResolutionError extends RipplepathError {
+export class MapExprResolutionError extends RipplegraphError {
   constructor(expr: string, detail: string) {
     super('E_MAP_EXPR', `cannot resolve map expression "${expr}": ${detail}`);
   }

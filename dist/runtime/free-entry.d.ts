@@ -1,12 +1,12 @@
-import { type ParsedGraph, type RunState, type PendingConfirmation, RipplepathError } from '../graph/types.js';
+import { type ParsedGraph, type RunState, type PendingConfirmation, RipplegraphError } from '../graph/types.js';
 export declare const MODAL_STACK_DEPTH_CAP = 2;
-export declare class UnknownEntryError extends RipplepathError {
+export declare class UnknownEntryError extends RipplegraphError {
     constructor(entryId: string);
 }
-export declare class ModalDepthCapError extends RipplepathError {
+export declare class ModalDepthCapError extends RipplegraphError {
     constructor(depth: number);
 }
-export declare class NoMatchingProposalError extends RipplepathError {
+export declare class NoMatchingProposalError extends RipplegraphError {
     constructor(givenId: string);
 }
 export interface JumpProposal {

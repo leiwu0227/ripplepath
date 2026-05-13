@@ -1,12 +1,12 @@
 import path from 'node:path';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { RipplepathError } from '../graph/types.js';
+import { RipplegraphError } from '../graph/types.js';
 
 const MARKER_BEGIN = '<!-- BEGIN workflow-specific guidance -->';
 const MARKER_END = '<!-- END workflow-specific guidance -->';
 
-export class TemplateNotFoundError extends RipplepathError {
+export class TemplateNotFoundError extends RipplegraphError {
   constructor(templatePath: string) {
     super('E_NO_TEMPLATE', `template not found: ${templatePath}`);
   }
@@ -71,7 +71,7 @@ export async function runInitCommand(opts: InitOptions = {}): Promise<InitRespon
 
   if (opts.update) {
     if (!fs.existsSync(agentMdPath)) {
-      throw new RipplepathError(
+      throw new RipplegraphError(
         'E_NOTHING_TO_UPDATE',
         `--update was passed but no AGENT.md exists at ${agentMdPath}`,
       );
@@ -85,7 +85,7 @@ export async function runInitCommand(opts: InitOptions = {}): Promise<InitRespon
   }
 
   if (fs.existsSync(agentMdPath)) {
-    throw new RipplepathError(
+    throw new RipplegraphError(
       'E_ALREADY_INITIALIZED',
       `${agentMdPath} already exists; pass --update to refresh the protocol section`,
     );

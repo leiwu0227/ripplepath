@@ -83,7 +83,7 @@ export interface ActiveRunPointer {
     run_id: string;
     workflow_path: string;
 }
-export declare class RipplepathError extends Error {
+export declare class RipplegraphError extends Error {
     readonly code: string;
     constructor(code: string, message: string);
 }

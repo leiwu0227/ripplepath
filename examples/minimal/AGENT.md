@@ -9,8 +9,8 @@ into the `hotfix` work node and pop back.
 Drive it with:
 
 ```sh
-ripplepath state                                 # auto-inits a run
-ripplepath step --output '{...}' --exec-used inline
+ripplegraph state                                 # auto-inits a run
+ripplegraph step --output '{...}' --exec-used inline
 ```
 
 …until the response is `{ "status": "complete" }`.

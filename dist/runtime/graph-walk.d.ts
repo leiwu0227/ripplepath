@@ -1,4 +1,4 @@
-import { type ParsedGraph, type NodeRef, RipplepathError } from '../graph/types.js';
+import { type ParsedGraph, type NodeRef, RipplegraphError } from '../graph/types.js';
 export interface LocatedNode {
     graph: ParsedGraph;
     ancestorGraphs: ParsedGraph[];
@@ -6,7 +6,7 @@ export interface LocatedNode {
     node: NodeRef | null;
     isMarker: boolean;
 }
-export declare class PathNotFoundError extends RipplepathError {
+export declare class PathNotFoundError extends RipplegraphError {
     constructor(path: string[], detail: string);
 }
 export declare function locate(root: ParsedGraph, path: string[]): LocatedNode;

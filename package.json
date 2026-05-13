@@ -1,12 +1,12 @@
 {
-  "name": "ripplepath",
+  "name": "ripplegraph",
   "version": "0.0.1",
   "description": "A lightweight, host-agent-driven workflow framework. The graph owns flow; the LLM is free within nodes.",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "ripplepath": "./bin/ripplepath"
+    "ripplegraph": "./bin/ripplegraph"
   },
   "files": [
     "dist",

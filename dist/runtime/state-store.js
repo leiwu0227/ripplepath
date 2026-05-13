@@ -1,19 +1,19 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { runStateSchema, activeRunPointerSchema, } from './state-schema.js';
-import { RipplepathError, START_NODE } from '../graph/types.js';
+import { RipplegraphError, START_NODE } from '../graph/types.js';
 import { appendEvent } from './transcript.js';
-export class DanglingActiveError extends RipplepathError {
+export class DanglingActiveError extends RipplegraphError {
     constructor(activeJsonPath, expectedRunDir) {
         super('E_DANGLING_ACTIVE', `active.json at ${activeJsonPath} references missing run directory: ${expectedRunDir}`);
     }
 }
-export class InvalidStateError extends RipplepathError {
+export class InvalidStateError extends RipplegraphError {
     constructor(stateJsonPath, details) {
         super('E_INVALID_STATE', `invalid state.json at ${stateJsonPath}: ${details}`);
     }
 }
-export class InvalidActivePointerError extends RipplepathError {
+export class InvalidActivePointerError extends RipplegraphError {
     constructor(activeJsonPath, details) {
         super('E_INVALID_ACTIVE', `invalid active.json at ${activeJsonPath}: ${details}`);
     }
@@ -113,7 +113,7 @@ export function writeState(rootPath, runId, state) {
 export function readState(rootPath) {
     const pointer = readActivePointer(rootPath);
     if (!pointer) {
-        throw new RipplepathError('E_NO_ACTIVE_RUN', `no active run at ${rootPath}; call loadOrInitRun first`);
+        throw new RipplegraphError('E_NO_ACTIVE_RUN', `no active run at ${rootPath}; call loadOrInitRun first`);
     }
     const dir = runDir(rootPath, pointer.run_id);
     if (!fs.existsSync(stateJsonPath(rootPath, pointer.run_id))) {

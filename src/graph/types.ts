@@ -99,9 +99,9 @@ export interface ActiveRunPointer {
   workflow_path: string;
 }
 
-export class RipplepathError extends Error {
+export class RipplegraphError extends Error {
   constructor(public readonly code: string, message: string) {
     super(message);
-    this.name = 'RipplepathError';
+    this.name = 'RipplegraphError';
   }
 }

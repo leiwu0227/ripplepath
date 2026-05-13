@@ -46,10 +46,10 @@ describe('minimal workflow e2e', () => {
           expected_node_id: 'kickoff',
           exec_used: 'inline',
           output: {
-            topic: 'ripplepath rollout',
+            topic: 'ripplegraph rollout',
             intent: 'plan rollout sequence',
             handoff_summary:
-              'Captured topic "ripplepath rollout" and intent "plan rollout sequence" for downstream analysis.',
+              'Captured topic "ripplegraph rollout" and intent "plan rollout sequence" for downstream analysis.',
           },
         },
         {
@@ -123,7 +123,7 @@ describe('minimal workflow e2e', () => {
 
       // Final outputs in root scope
       expect(state['outputs']).toMatchObject({
-        kickoff: { topic: 'ripplepath rollout' },
+        kickoff: { topic: 'ripplegraph rollout' },
         analyze: { findings: { chosen: 'gradual' } },
         finish: { conclusion: expect.any(String) },
         hotfix: { fix: expect.any(String) },
@@ -135,7 +135,7 @@ describe('minimal workflow e2e', () => {
       expect((subgraphs['analyze']!['outputs'] as Record<string, unknown>)['explore']).toBeDefined();
       expect((subgraphs['analyze']!['outputs'] as Record<string, unknown>)['refine']).toBeDefined();
       expect((subgraphs['analyze']!['input'] as Record<string, unknown>)['topic']).toBe(
-        'ripplepath rollout',
+        'ripplegraph rollout',
       );
 
       // Modal stack should be empty at end (pushed for hotfix, popped on hotfix END)

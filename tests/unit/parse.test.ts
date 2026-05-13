@@ -13,7 +13,7 @@ import {
 let tmpRoot: string;
 
 beforeEach(() => {
-  tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'ripplepath-parse-'));
+  tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'ripplegraph-parse-'));
 });
 
 afterEach(() => {

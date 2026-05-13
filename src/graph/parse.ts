@@ -7,22 +7,22 @@ import {
   type NodeRef,
   type WorkNode,
   type SubgraphRef,
-  RipplepathError,
+  RipplegraphError,
 } from './types.js';
 
-class MissingWorkflowError extends RipplepathError {
+class MissingWorkflowError extends RipplegraphError {
   constructor(rootPath: string) {
     super('E_MISSING_WORKFLOW', `no workflow.json found at: ${rootPath}`);
   }
 }
 
-class InvalidWorkflowError extends RipplepathError {
+class InvalidWorkflowError extends RipplegraphError {
   constructor(rootPath: string, details: string) {
     super('E_INVALID_WORKFLOW', `invalid workflow.json at ${rootPath}: ${details}`);
   }
 }
 
-class MissingNodeFolderError extends RipplepathError {
+class MissingNodeFolderError extends RipplegraphError {
   constructor(nodeId: string, expectedPath: string) {
     super(
       'E_MISSING_NODE_FOLDER',
@@ -31,7 +31,7 @@ class MissingNodeFolderError extends RipplepathError {
   }
 }
 
-class MissingSubgraphError extends RipplepathError {
+class MissingSubgraphError extends RipplegraphError {
   constructor(nodeId: string, expectedPath: string) {
     super(
       'E_MISSING_SUBGRAPH',
@@ -40,7 +40,7 @@ class MissingSubgraphError extends RipplepathError {
   }
 }
 
-class CyclicRefError extends RipplepathError {
+class CyclicRefError extends RipplegraphError {
   constructor(cycle: string[]) {
     super(
       'E_CYCLIC_REF',

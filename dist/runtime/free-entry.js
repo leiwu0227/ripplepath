@@ -1,18 +1,18 @@
 import { randomUUID } from 'node:crypto';
-import { RipplepathError, } from '../graph/types.js';
+import { RipplegraphError, } from '../graph/types.js';
 import { locate } from './graph-walk.js';
 export const MODAL_STACK_DEPTH_CAP = 2;
-export class UnknownEntryError extends RipplepathError {
+export class UnknownEntryError extends RipplegraphError {
     constructor(entryId) {
         super('E_UNKNOWN_ENTRY', `no free entry with id "${entryId}" in the active graph`);
     }
 }
-export class ModalDepthCapError extends RipplepathError {
+export class ModalDepthCapError extends RipplegraphError {
     constructor(depth) {
         super('E_MODAL_DEPTH_CAP', `cannot push modal frame: stack already at depth ${depth} (cap is ${MODAL_STACK_DEPTH_CAP})`);
     }
 }
-export class NoMatchingProposalError extends RipplepathError {
+export class NoMatchingProposalError extends RipplegraphError {
     constructor(givenId) {
         super('E_NO_MATCHING_PROPOSAL', `confirm requested for proposal_id "${givenId}" but state has no matching pending_confirmation`);
     }

@@ -1,15 +1,15 @@
 ## Overview
 
-`demoflow` is a tiny consumer CLI that exists to exercise ripplepath
+`demoflow` is a tiny consumer CLI that exists to exercise ripplegraph
 end-to-end with a real host agent (Claude Code). It is the second assignment
-in the ripplepath project and its only purpose is integration validation —
+in the ripplegraph project and its only purpose is integration validation —
 the v0 runtime was proven by a deterministic stub host; this assignment
 proves it works under a real LLM-driven host.
 
 The consumer-CLI pattern is **Shape A — scaffolder-only**:
 `demoflow init` writes a `.demoflow/` workflow folder containing a complete,
-domain-flavored workflow. After init, the user calls `ripplepath state` and
-`ripplepath step` directly (with `--workflow-root .demoflow`) — demoflow does
+domain-flavored workflow. After init, the user calls `ripplegraph state` and
+`ripplegraph step` directly (with `--workflow-root .demoflow`) — demoflow does
 not wrap or proxy those commands. The wrapping pattern (Shape B) is left to
 specdev-cli proper as a separate later assignment.
 
@@ -18,7 +18,7 @@ specdev-cli proper as a separate later assignment.
 - Ship a separate npm-publishable package `demoflow` with one command:
   `demoflow init [--target <dir>]`
 - Bundle a working commit-message drafter workflow that exercises every
-  practical ripplepath mechanic short of subgraphs (subgraphs already proven
+  practical ripplegraph mechanic short of subgraphs (subgraphs already proven
   by the v0 E2E):
   - At least one `exec: inline` work node
   - At least one `exec: spawn` work node
@@ -26,7 +26,7 @@ specdev-cli proper as a separate later assignment.
     the host to invoke
   - Structured Zod output schemas with mandatory `handoff_summary`
   - A human approval gate as the final node
-- Live under `packages/demoflow/` with a local `file:../..` dep on ripplepath
+- Live under `packages/demoflow/` with a local `file:../..` dep on ripplegraph
 - Be installable into a fresh empty project via `npm install <abs-path-to-demoflow>`
   (and, when later published, `npm install demoflow`)
 - Drive successfully under a real Claude Code session: completes the
@@ -37,12 +37,12 @@ specdev-cli proper as a separate later assignment.
 
 - No wrapping commands (`demoflow state`/`demoflow step`) — Shape B is a
   separate assignment
-- No subgraph in the bundled workflow (covered by ripplepath's own E2E)
+- No subgraph in the bundled workflow (covered by ripplegraph's own E2E)
 - No automated end-to-end test that drives a real LLM (would require API
   keys / costs / non-determinism). The acceptance test for this assignment
   is a documented manual run in Claude Code.
 - No publication to npm in this assignment (just local install path proven)
-- No conversion of the ripplepath repo to a real monorepo (workspaces,
+- No conversion of the ripplegraph repo to a real monorepo (workspaces,
   Turbo, etc.). `packages/demoflow/` is just a sibling folder with its own
   `package.json`; the top-level `package.json` does not learn about it.
 - No git command execution by demoflow itself — git interaction happens
@@ -54,12 +54,12 @@ specdev-cli proper as a separate later assignment.
 ### Repo layout (this assignment introduces)
 
 ```
-ripplepath repo/
-  package.json                            # existing — ripplepath (root)
+ripplegraph repo/
+  package.json                            # existing — ripplegraph (root)
   src/ bin/ templates/ examples/          # existing
   packages/                               # NEW
     demoflow/
-      package.json                        # name: demoflow, deps: { "ripplepath": "file:../.." }
+      package.json                        # name: demoflow, deps: { "ripplegraph": "file:../.." }
       tsconfig.json
       bin/demoflow                        # CLI shim
       src/
@@ -106,11 +106,11 @@ Behavior:
 4. Create `<target>/.demoflow/runs/` (empty).
 5. Print a success message including:
    - Path to the created folder
-   - The next-step hint: "now run `ripplepath state --workflow-root
-     <path-to-.demoflow>` (or just `ripplepath state` if you cd into the
+   - The next-step hint: "now run `ripplegraph state --workflow-root
+     <path-to-.demoflow>` (or just `ripplegraph state` if you cd into the
      directory containing `.demoflow/`)"
 
-`init` does not invoke ripplepath; it only writes files. The ripplepath
+`init` does not invoke ripplegraph; it only writes files. The ripplegraph
 runtime is exercised lazily when the host agent runs `state`/`step`.
 
 ### The bundled commit-drafter workflow
@@ -136,32 +136,32 @@ mechanics).
 
 The bundled `AGENT.md.tmpl` consists of:
 
-1. The full canonical ripplepath protocol section (copied verbatim from
-   ripplepath's `templates/AGENT.md.tmpl`) — the host's universal contract
+1. The full canonical ripplegraph protocol section (copied verbatim from
+   ripplegraph's `templates/AGENT.md.tmpl`) — the host's universal contract
 2. A `<!-- BEGIN workflow-specific guidance -->` block containing
    demoflow-specific notes:
    - "This workflow drafts a commit message from the current git state."
    - "The `gather` node tells you to run `nodes/gather/scripts/collect-git-status.sh`. Do that with your Bash tool and parse the output."
-   - "The `confirm` node REQUIRES `approved: true` in your output. Surface the drafted message to the user and wait for explicit approval. If they want changes, capture their feedback in `handoff_summary` and re-call `ripplepath state` to retry the node."
+   - "The `confirm` node REQUIRES `approved: true` in your output. Surface the drafted message to the user and wait for explicit approval. If they want changes, capture their feedback in `handoff_summary` and re-call `ripplegraph state` to retry the node."
 
 ### Local development testing flow
 
 Until published to npm:
 
 ```sh
-# In the ripplepath repo:
+# In the ripplegraph repo:
 cd packages/demoflow
-npm install                              # installs deps incl. file:../.. ripplepath
+npm install                              # installs deps incl. file:../.. ripplegraph
 npm run build                            # tsc to dist/
 
 # In a fresh empty directory anywhere:
-npm install /abs/path/to/ripplepath/packages/demoflow
+npm install /abs/path/to/ripplegraph/packages/demoflow
 npx demoflow init                        # writes .demoflow/
 ls .demoflow/                            # AGENT.md  workflow.json  nodes/  runs/
-ripplepath validate --workflow-root .demoflow
+ripplegraph validate --workflow-root .demoflow
 
 # Open this directory in Claude Code; Claude reads .demoflow/AGENT.md
-# and drives the workflow via ripplepath state / step.
+# and drives the workflow via ripplegraph state / step.
 ```
 
 ### What the host agent does
@@ -170,13 +170,13 @@ The host agent (Claude Code) sees `.demoflow/AGENT.md` and:
 
 1. Reads the protocol section
 2. Reads the workflow-specific guidance
-3. Calls `ripplepath state` — gets the `gather` node's instruction and schema
+3. Calls `ripplegraph state` — gets the `gather` node's instruction and schema
 4. Reads `nodes/gather/scripts/collect-git-status.sh`, runs it via its Bash
    tool, parses the output into the gather schema's shape
-5. Calls `ripplepath step --output <gather-json> --exec-used inline`
+5. Calls `ripplegraph step --output <gather-json> --exec-used inline`
 6. Receives `analyze` node — sees `exec: spawn`, uses its Task tool to
    spawn a sub-agent with the analyze schema for structured output
-7. Submits the sub-agent's result via `ripplepath step --output ... --exec-used spawn`
+7. Submits the sub-agent's result via `ripplegraph step --output ... --exec-used spawn`
 8. Receives `draft` node (inline) — composes the commit message
 9. Submits
 10. Receives `confirm` node — shows the draft to the user, waits for
@@ -188,21 +188,21 @@ The host agent (Claude Code) sees `.demoflow/AGENT.md` and:
 - `packages/demoflow/` builds cleanly with `tsc`
 - `demoflow init` writes the full `.demoflow/` tree to a fresh empty
   directory (manual smoke + documented one-liner)
-- `ripplepath validate --workflow-root .demoflow` returns `status: "ok"`
+- `ripplegraph validate --workflow-root .demoflow` returns `status: "ok"`
   with the expected counts (4 work nodes, 0 subgraphs)
 - A documented manual Claude Code session in a separate directory drives
   the workflow to `status: "complete"`, producing a `transcript.md` with
   all 11 lifecycle event types
 - The drafter actually produces a usable commit message (subjective but
   testable by inspecting the final state.outputs.draft)
-- demoflow's `package.json` declares `ripplepath` as a regular dependency
+- demoflow's `package.json` declares `ripplegraph` as a regular dependency
   via `file:../..` — proving the package-consumption shape, not just a
   same-repo import
 
 ## Dependencies
 
-- `ripplepath` (file:../.. for local dev)
-- `zod` (peer of ripplepath, also a runtime dep of node schemas)
+- `ripplegraph` (file:../.. for local dev)
+- `zod` (peer of ripplegraph, also a runtime dep of node schemas)
 - `typescript` (dev)
 - Node 20+
 
@@ -215,7 +215,7 @@ run, documented in the README.
   file-copy operation; the value is in the bundled workflow content, which
   is exercised by the manual run.
 - **Smoke**: a documented one-liner (in README) that runs `init`, then
-  `ripplepath validate`, against a temp directory.
+  `ripplegraph validate`, against a temp directory.
 - **Acceptance**: a documented Claude Code session that drives the
   workflow end-to-end. Captured as a README "Real host-agent run"
   section describing what the user does and what to expect.
@@ -223,10 +223,10 @@ run, documented in the README.
 ## Risks
 
 - **`tsx` resolution of `zod` from `nodes/*/schema.ts` in a fresh
-  install dir**. The v0 ripplepath E2E worked around this by putting the
-  fixture inside the ripplepath repo so tsx walks up to the repo's
+  install dir**. The v0 ripplegraph E2E worked around this by putting the
+  fixture inside the ripplegraph repo so tsx walks up to the repo's
   node_modules. In a real consumer install, zod is in the user's
-  `node_modules` adjacent to ripplepath — tsx should resolve it
+  `node_modules` adjacent to ripplegraph — tsx should resolve it
   correctly, but this needs verification during the manual smoke.
   Mitigation: include a smoke step in the README and document the
   failure mode if it appears.
@@ -244,16 +244,16 @@ run, documented in the README.
 ## Open Questions
 
 - Should `demoflow init` write the `runs/active.json` anchor or leave
-  it for `ripplepath state` to auto-create on first call? Proposed:
-  leave to ripplepath (matches the run-lifecycle design — init does
+  it for `ripplegraph state` to auto-create on first call? Proposed:
+  leave to ripplegraph (matches the run-lifecycle design — init does
   scaffolding, state does run creation).
 - Should there be a `.demoflow/CLAUDE.md` hint that points the host
   agent at `.demoflow/AGENT.md`? Proposed: yes — a one-line stub that
-  says "ripplepath workflow lives at `.demoflow/AGENT.md`; read that
+  says "ripplegraph workflow lives at `.demoflow/AGENT.md`; read that
   before doing anything else." This bridges Claude Code's default
-  CLAUDE.md-reading behavior to ripplepath's AGENT.md convention.
+  CLAUDE.md-reading behavior to ripplegraph's AGENT.md convention.
 - Should the workflow's `confirm` node support a revise-loop (re-emit
   the draft if user rejects)? Proposed: out of scope for v0 of the
-  workflow — the host can re-call `ripplepath state` if needed; a real
+  workflow — the host can re-call `ripplegraph state` if needed; a real
   revise-loop would need a free entry or a back-edge, which is a future
   enhancement.

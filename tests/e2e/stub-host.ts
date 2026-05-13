@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
-const CLI_BIN = path.join(REPO_ROOT, 'bin', 'ripplepath');
+const CLI_BIN = path.join(REPO_ROOT, 'bin', 'ripplegraph');
 
 export interface StepScriptEntry {
   expected_node_id: string;

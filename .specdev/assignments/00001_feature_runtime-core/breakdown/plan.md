@@ -1,10 +1,10 @@
-# ripplepath runtime-core Implementation Plan
+# ripplegraph runtime-core Implementation Plan
 
 > **For agent:** Implement this plan task-by-task. Match verification effort to task mode.
 
 **Goal:** Ship a working two-command graph runtime (`state` + `step`) that drives a stub host end-to-end through a multi-step, multi-subgraph workflow with schema validation, modal entries, and per-step JSON checkpointing.
 
-**Architecture:** A small TypeScript/Node CLI exposes `ripplepath state` (read-or-init) and `ripplepath step` (validate-and-transition). Graph definitions live as JSON/JSONC; node instructions as Markdown; node output schemas as Zod-exporting TS modules loaded via `tsx` at runtime. The CLI parses the graph, validates outputs at every transition, manages run state on disk under `runs/<run-id>/`, applies `inputMap`/`outputMap` at subgraph boundaries, and serves neighborhood + workflow-overview context to the host agent. No LLM SDK in the runtime — execution stays in the host.
+**Architecture:** A small TypeScript/Node CLI exposes `ripplegraph state` (read-or-init) and `ripplegraph step` (validate-and-transition). Graph definitions live as JSON/JSONC; node instructions as Markdown; node output schemas as Zod-exporting TS modules loaded via `tsx` at runtime. The CLI parses the graph, validates outputs at every transition, manages run state on disk under `runs/<run-id>/`, applies `inputMap`/`outputMap` at subgraph boundaries, and serves neighborhood + workflow-overview context to the host agent. No LLM SDK in the runtime — execution stays in the host.
 
 **Tech Stack:** TypeScript, Node 20+ (ESM), Zod (peer), `jsonc-parser`, `zod-to-json-schema`, `tsx` (embedded TS loader for user schemas), Vitest for tests.
 
@@ -17,12 +17,12 @@
 ### Task 1: Project scaffolding
 **Mode:** lightweight
 **Skills:** []
-**Files:** `package.json`, `tsconfig.json`, `bin/ripplepath`, `src/index.ts`, `.gitignore`, `README.md`, `vitest.config.ts`
+**Files:** `package.json`, `tsconfig.json`, `bin/ripplegraph`, `src/index.ts`, `.gitignore`, `README.md`, `vitest.config.ts`
 
 **Work:**
-- `package.json`: `name: "ripplepath"`, `type: "module"`, `bin: { ripplepath: "./bin/ripplepath" }`, peer `zod` (`^3.25 || ^4`), deps `jsonc-parser`, `zod-to-json-schema`, `tsx`, devDeps `typescript`, `vitest`, `@types/node`
+- `package.json`: `name: "ripplegraph"`, `type: "module"`, `bin: { ripplegraph: "./bin/ripplegraph" }`, peer `zod` (`^3.25 || ^4`), deps `jsonc-parser`, `zod-to-json-schema`, `tsx`, devDeps `typescript`, `vitest`, `@types/node`
 - `tsconfig.json`: Node 20+ ESM, `strict`, `moduleResolution: bundler`, output to `dist/`
-- `bin/ripplepath`: shim that delegates to compiled `dist/cli.js`
+- `bin/ripplegraph`: shim that delegates to compiled `dist/cli.js`
 - `src/index.ts`: empty exports placeholder
 - `vitest.config.ts`: Node environment, no coverage for v0
 - `.gitignore`: `node_modules`, `dist`, `runs/`, `*.log`
@@ -34,7 +34,7 @@
 
 **Test Budget:** +0; text-only
 **Test Pruning:** N/A
-**Commit:** `git commit -m "scaffold ripplepath package and tooling"`
+**Commit:** `git commit -m "scaffold ripplegraph package and tooling"`
 
 ---
 
@@ -308,7 +308,7 @@
 
 **Verify:**
 - Text-only: compiles; AGENT.md template covers every protocol facet from design.md
-- Smoke: run `ripplepath init` in a temp dir; `ripplepath validate` reports ok
+- Smoke: run `ripplegraph init` in a temp dir; `ripplegraph validate` reports ok
 
 **Test Budget:** +0
 **Test Pruning:** N/A
@@ -329,8 +329,8 @@
 - `--help` prints command list and flags
 
 **Verify:**
-- Text-only: compiles; `ripplepath --help` runs (after build)
-- Smoke: `ripplepath validate --workflow-root examples/minimal` exits 0 after Tasks 13 + 15 land
+- Text-only: compiles; `ripplegraph --help` runs (after build)
+- Smoke: `ripplegraph validate --workflow-root examples/minimal` exits 0 after Tasks 13 + 15 land
 
 **Test Budget:** +0
 **Test Pruning:** N/A
@@ -355,7 +355,7 @@
 
 **Verify:**
 - Text-only: every node folder has both `instruction.md` and `schema.ts`; every output schema includes a properly-bounded `handoff_summary`
-- Run `ripplepath validate --workflow-root examples/minimal` — exits 0
+- Run `ripplegraph validate --workflow-root examples/minimal` — exits 0
 
 **Test Budget:** +0
 **Test Pruning:** N/A
@@ -370,9 +370,9 @@
 
 **Work:**
 - `stub-host.ts`: a deterministic stub host. Given a script of `{ expected_node_id, output, exec_used }` steps plus an optional `{ proposal_id, decision }` queue, it drives the workflow by repeatedly:
-  1. Spawn `ripplepath state` subprocess; parse JSON response
-  2. If response is `pending_confirmation`, dequeue the next decision and call `ripplepath step --confirm <id> --decision <approved|rejected>`
-  3. Else assert the current `node_id` matches the script; call `ripplepath step --output <json> --exec-used <mode>`
+  1. Spawn `ripplegraph state` subprocess; parse JSON response
+  2. If response is `pending_confirmation`, dequeue the next decision and call `ripplegraph step --confirm <id> --decision <approved|rejected>`
+  3. Else assert the current `node_id` matches the script; call `ripplegraph step --output <json> --exec-used <mode>`
   4. On retry-error response, submit the scripted recovery output
   5. Loop until completion or timeout
 - `minimal.e2e.test.ts`: vitest test that
@@ -396,6 +396,6 @@
 After all tasks complete:
 - `vitest run` — all 5 tests pass (parser, state-store, neighborhood, free-entry, E2E)
 - `tsc --noEmit` — clean
-- `ripplepath validate --workflow-root examples/minimal` — exits 0
+- `ripplegraph validate --workflow-root examples/minimal` — exits 0
 - Total LOC under `src/` within ~500–700 target (verify `find src -name '*.ts' -print0 | xargs -0 wc -l`)
 - No LLM SDK dependency in `package.json`

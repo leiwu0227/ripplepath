@@ -1,4 +1,4 @@
-# 00003 — ripplepath v0.1 host-agent ergonomics
+# 00003 — ripplegraph v0.1 host-agent ergonomics
 
 ## Motivation
 
@@ -6,17 +6,17 @@ Assignment 00002 (demoflow as end-to-end validation harness) succeeded as a
 test of the central two-command loop (`state` + `step`). The loop itself
 is good and should not change. Friction at the edges was real, however —
 seven distinct issues surfaced when a real Claude Code session drove the
-workflow. None are demoflow bugs; all are ripplepath framework gaps that
+workflow. None are demoflow bugs; all are ripplegraph framework gaps that
 the deterministic E2E stub (built into 00001) did not exercise.
 
-This assignment closes those gaps. Goal: a v0.1 ripplepath that a host
+This assignment closes those gaps. Goal: a v0.1 ripplegraph that a host
 agent can drive without surprise, without privileged out-of-band recovery,
 and without shell-escape land mines.
 
 ## Items in scope
 
 ### Workflow-root discovery
-- **Problem:** `ripplepath state` requires cwd inside `.<consumer>/`. A
+- **Problem:** `ripplegraph state` requires cwd inside `.<consumer>/`. A
   node's script often needs cwd at the project root (e.g. running
   `git status`). The agent context-switches cwd between steps.
 - **Direction:** walk up from cwd looking for `.<consumer>/workflow.json`
@@ -25,14 +25,14 @@ and without shell-escape land mines.
 
 ### Restart / new-run protocol — **separate from revise**
 - **Problem:** no documented way to start fresh. Re-running
-  `ripplepath state` keeps the same run-id. There's no `start`, no
+  `ripplegraph state` keeps the same run-id. There's no `start`, no
   `reset`, no `--new-run`. When the agent typed an out-of-band token at
   a node, the protocol had no answer.
 - **Treated as a run-level concern** (per the user's bundling decision on
   2026-05-13): this is "abandon current run, begin a new one with fresh
   state" — distinct from in-place revision. New run-id, fresh transcript.
-- **Direction (open):** could be `ripplepath state --new-run`, a separate
-  `ripplepath reset` command, or a status field the agent can request.
+- **Direction (open):** could be `ripplegraph state --new-run`, a separate
+  `ripplegraph reset` command, or a status field the agent can request.
   Brainstorm should land the surface explicitly.
 
 ### Large-payload output

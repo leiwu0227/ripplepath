@@ -7,14 +7,14 @@ import { resolveWorkNode } from '../node/resolver.js';
 import { generateOverview, generateNeighborhood } from '../runtime/neighborhood.js';
 import { advanceStructural } from '../runtime/advance.js';
 import { appendEvent } from '../runtime/transcript.js';
-import { RipplepathError, type WorkNode, type FreeEntry } from '../graph/types.js';
+import { RipplegraphError, type WorkNode, type FreeEntry } from '../graph/types.js';
 import { locate } from '../runtime/graph-walk.js';
 
-export class MissingWorkflowRootError extends RipplepathError {
+export class MissingWorkflowRootError extends RipplegraphError {
   constructor(rootPath: string) {
     super(
       'E_NO_WORKFLOW_ROOT',
-      `no workflow.json (or workflow.jsonc) found at ${rootPath} — run "ripplepath init" first or pass --workflow-root`,
+      `no workflow.json (or workflow.jsonc) found at ${rootPath} — run "ripplegraph init" first or pass --workflow-root`,
     );
   }
 }

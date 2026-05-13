@@ -4,7 +4,7 @@ import {
   type SubgraphRef,
   START_NODE,
   END_NODE,
-  RipplepathError,
+  RipplegraphError,
 } from '../graph/types.js';
 
 export interface LocatedNode {
@@ -15,7 +15,7 @@ export interface LocatedNode {
   isMarker: boolean;
 }
 
-export class PathNotFoundError extends RipplepathError {
+export class PathNotFoundError extends RipplegraphError {
   constructor(path: string[], detail: string) {
     super('E_PATH_NOT_FOUND', `cannot locate path [${path.join(' > ')}]: ${detail}`);
   }

@@ -9,7 +9,7 @@ let runDir: string;
 
 beforeEach(() => {
   // advance.ts emits transcript events; give it a real path so writes succeed
-  runDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ripplepath-advance-'));
+  runDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ripplegraph-advance-'));
   fs.mkdirSync(path.join(runDir, 'runs', 'r1'), { recursive: true });
 });
 
