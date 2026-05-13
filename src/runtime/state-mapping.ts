@@ -1,4 +1,5 @@
-import { type RunState, type MapExpr, type SubgraphState, RipplepathError } from '../graph/types.js';
+import { type MapExpr, type SubgraphState, RipplepathError } from '../graph/types.js';
+import type { ScopeState } from './scope.js';
 
 export class MapExprResolutionError extends RipplepathError {
   constructor(expr: string, detail: string) {
@@ -24,44 +25,44 @@ export function evalMapExpr(scope: unknown, expr: MapExpr): unknown {
   return cursor;
 }
 
-function getOrCreateSubgraphState(state: RunState, nodeId: string): SubgraphState {
-  let s = state.subgraphs[nodeId];
-  if (!s) {
-    s = {};
-    state.subgraphs[nodeId] = s;
-  }
-  return s;
-}
-
+// Seed the child subgraph's `input` by evaluating each expression against
+// the parent scope. Parent expressions can read $.outputs.foo or $.input.bar.
 export function applyInputMap(
-  parentState: RunState,
+  parentScope: ScopeState,
   subgraphNodeId: string,
   inputMap: Record<string, MapExpr>,
 ): void {
-  const sub = getOrCreateSubgraphState(parentState, subgraphNodeId);
+  if (!parentScope.subgraphs) parentScope.subgraphs = {};
+  let sub = parentScope.subgraphs[subgraphNodeId];
+  if (!sub) {
+    sub = {};
+    parentScope.subgraphs[subgraphNodeId] = sub;
+  }
   const input: Record<string, unknown> = sub.input ?? {};
   for (const [key, expr] of Object.entries(inputMap)) {
-    input[key] = evalMapExpr(parentState, expr);
+    input[key] = evalMapExpr(parentScope, expr);
   }
   sub.input = input;
 }
 
+// Surface the child subgraph's results to the parent by evaluating each
+// expression against the child scope (which exposes outputs + input).
+// Writes to parentScope.outputs[subgraphNodeId] as an object of the mapped keys.
 export function applyOutputMap(
-  parentState: RunState,
+  parentScope: ScopeState,
+  childScope: SubgraphState,
   subgraphNodeId: string,
   outputMap: Record<string, MapExpr>,
 ): void {
-  const sub = getOrCreateSubgraphState(parentState, subgraphNodeId);
-  // The expressions are evaluated against the SUBGRAPH's state scope.
-  // We expose a synthetic scope { outputs: sub.outputs ?? {}, input: sub.input ?? {} }
-  // so authors can write $.outputs.leafNode.key or $.input.topic.
-  const subScope = {
-    outputs: sub.outputs ?? {},
-    input: sub.input ?? {},
+  if (!parentScope.outputs) parentScope.outputs = {};
+  const target: Record<string, unknown> =
+    (parentScope.outputs[subgraphNodeId] as Record<string, unknown>) ?? {};
+  const evalScope = {
+    outputs: childScope.outputs ?? {},
+    input: childScope.input ?? {},
   };
-  const target: Record<string, unknown> = (parentState.outputs[subgraphNodeId] as Record<string, unknown>) ?? {};
   for (const [key, expr] of Object.entries(outputMap)) {
-    target[key] = evalMapExpr(subScope, expr);
+    target[key] = evalMapExpr(evalScope, expr);
   }
-  parentState.outputs[subgraphNodeId] = target;
+  parentScope.outputs[subgraphNodeId] = target;
 }
