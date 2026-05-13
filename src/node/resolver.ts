@@ -2,8 +2,35 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { tsImport } from 'tsx/esm/api';
-import { z, type ZodTypeAny, ZodObject, ZodString } from 'zod';
+import { z, type ZodTypeAny } from 'zod';
 import { RipplepathError, type ResolvedNodeAssets } from '../graph/types.js';
+
+// Cross-instance Zod detection. We use the documented `_def.typeName` rather
+// than `instanceof` because schemas the user imports may come from a
+// different Zod instance than ours (peer-dependency dual-load), in which
+// case `instanceof ZodObject` returns false even for valid schemas.
+function getTypeName(schema: unknown): string | null {
+  if (!schema || typeof schema !== 'object') return null;
+  const def = (schema as { _def?: { typeName?: unknown } })._def;
+  if (!def || typeof def.typeName !== 'string') return null;
+  return def.typeName;
+}
+
+function isZodObject(schema: unknown): boolean {
+  return getTypeName(schema) === 'ZodObject';
+}
+
+function isZodString(schema: unknown): boolean {
+  return getTypeName(schema) === 'ZodString';
+}
+
+function getObjectShape(schema: unknown): Record<string, ZodTypeAny> {
+  const def = (schema as { _def?: { shape?: () => Record<string, ZodTypeAny> } })._def;
+  if (def && typeof def.shape === 'function') return def.shape();
+  // Fallback to .shape getter on the schema (Zod v3 exposes both)
+  const shape = (schema as { shape?: Record<string, ZodTypeAny> }).shape;
+  return shape ?? {};
+}
 
 export class MissingNodeAssetError extends RipplepathError {
   constructor(folderPath: string, asset: string) {
@@ -40,8 +67,8 @@ interface ZodStringDefLike {
 }
 
 function inspectStringBounds(field: ZodTypeAny): { min?: number; max?: number } | null {
-  if (!(field instanceof ZodString)) return null;
-  const def = (field as ZodString)._def as ZodStringDefLike;
+  if (!isZodString(field)) return null;
+  const def = (field as { _def: ZodStringDefLike })._def;
   let min: number | undefined;
   let max: number | undefined;
   for (const check of def.checks ?? []) {
@@ -52,13 +79,13 @@ function inspectStringBounds(field: ZodTypeAny): { min?: number; max?: number } 
 }
 
 function enforceHandoffSummary(folderPath: string, outputSchema: ZodTypeAny): void {
-  if (!(outputSchema instanceof ZodObject)) {
+  if (!isZodObject(outputSchema)) {
     throw new InvalidSchemaModuleError(
       folderPath,
-      `output export must be a z.object; got ${outputSchema?.constructor?.name ?? typeof outputSchema}`,
+      `output export must be a z.object; got typeName=${getTypeName(outputSchema) ?? typeof outputSchema}`,
     );
   }
-  const shape = (outputSchema as ZodObject<Record<string, ZodTypeAny>>).shape;
+  const shape = getObjectShape(outputSchema);
   const field = shape['handoff_summary'];
   if (!field) {
     throw new MissingHandoffSummaryError(folderPath);
