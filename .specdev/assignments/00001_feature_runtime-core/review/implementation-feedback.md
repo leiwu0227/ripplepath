@@ -11,3 +11,17 @@
 
 ### Addressed from changelog
 - (none -- first round)
+
+## Round 2
+
+**Verdict:** needs-changes
+
+### Findings
+1. [F2.1] CRITICAL: Modal entries declared inside a subgraph do not pop back to the deferred in-subgraph resume point. `advanceStructural` only calls `popFrame(state)` when the current leaf is root `__end__` (`src/runtime/advance.ts:52`-`src/runtime/advance.ts:60`). When a modal target in a child graph reaches `["subgraphId", "__end__"]`, the code always takes the subgraph-exit path instead (`src/runtime/advance.ts:62`-`src/runtime/advance.ts:86`), applies the child outputMap, and follows the parent edge. That violates the planned `popFrame(state): on subgraph END inside a modal frame` behavior and skips whatever node the modal proposal deferred to inside the subgraph. Add a test with a subgraph-local modal entry that proposes from one child node, completes the modal target, and resumes at the deferred sibling node before the subgraph exits.
+
+2. [F2.2] CRITICAL: `replace` entries do not actually abandon an existing modal frame. `confirmJump` handles `entry.mode === 'modal'` by pushing a frame, but the `replace` branch only avoids pushing a new frame (`src/runtime/free-entry.ts:96`-`src/runtime/free-entry.ts:104`). If a replace jump is approved while already inside a modal entry, the old frame remains on `state.stack`; when the replacement path later reaches `__end__`, `popFrame` restores the abandoned path instead of completing/replacing it. This contradicts the design's "replace abandons current frame" semantics. The fix should explicitly discard the current modal frame for replace mode, with a test covering replace from inside an active modal.
+
+### Addressed from changelog
+- [F1.1] Addressed: `package.json` now narrows the `zod` peer dependency to `^3.25.0`, matching the resolver's Zod v3 introspection.
+- [F1.2] Addressed: transcript creation now emits `run_created`, structural subgraph transitions emit `subgraph_entered`/`subgraph_exited`, and the E2E asserts those lifecycle events.
+- [F1.3] Addressed: work responses now include structured `free_entries`, and the host-agent template/example point at that field.

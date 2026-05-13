@@ -146,6 +146,21 @@ describe('free-entry', () => {
     expect(state.stack).toHaveLength(0);
   });
 
+  it('replace abandons an active modal frame', () => {
+    const graph = fixture();
+    const state = fakeState(['one']);
+    // simulate already being inside a modal entry
+    state.stack = [{ path: ['two'], attempt: 0 }];
+    const pending = proposeJump(state, { entry_id: 'switch', reason: 'r' }, graph, {
+      path: ['two'],
+      attempt: 0,
+    });
+    const result = confirmJump(state, pending.proposal_id, 'approved', graph);
+    expect(result.mode).toBe('replace');
+    expect(state.stack).toHaveLength(0);
+    expect(state.current.path).toEqual(['reset_target']);
+  });
+
   it('caps modal stack at depth 2', () => {
     const graph = fixture();
     const state = fakeState(['one']);

@@ -29,3 +29,31 @@
   available without parsing the markdown overview. The protocol template
   (`templates/AGENT.md.tmpl`) and example template (`examples/minimal/AGENT.md`)
   updated to point at `free_entries` instead of `state.overview.free_entries`.
+
+## Round 2
+
+- **[F2.1] Addressed** — `advanceStructural` now treats `__end__` at
+  any depth uniformly via a depth-based modal-pop check. When the leaf is
+  `__end__`, it inspects the top of `state.stack`; if the frame's
+  resume depth (path length minus one) matches the current `__end__`'s
+  depth (number of ancestor subgraphs), it pops the frame and resumes
+  the deferred position. Only when no matching frame is present does it
+  fall through to the normal "root → complete" or "subgraph exit + parent
+  edge" paths. This means a modal entry declared inside a subgraph now
+  pops correctly at the subgraph's `__end__` instead of being mistaken
+  for a normal subgraph exit. Added `tests/unit/advance.test.ts` with a
+  scenario where a modal target inside a subgraph reaches the
+  subgraph's `__end__` — the test asserts the deferred sibling node
+  (`beta`) is restored before the subgraph exits.
+
+- **[F2.2] Addressed** — `confirmJump`'s `replace` branch now
+  explicitly pops one frame off `state.stack` so a replace approved
+  while inside a modal abandons that modal frame (matching the design's
+  "replace abandons the current frame" semantics). When no modal is
+  active the pop is a no-op. Added a unit case in
+  `tests/unit/free-entry.test.ts` that simulates being inside a modal,
+  approves a replace jump, and asserts the stack ends empty (the
+  original frame is discarded, not restored on a later END).
+
+Verification: typecheck clean; all 30 tests pass (parser 7, state-store 6,
+neighborhood 6, free-entry 9, advance 1, e2e 1).

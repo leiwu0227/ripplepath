@@ -50,13 +50,23 @@ export function advanceStructural(
     }
 
     if (leaf === END_NODE) {
-      if (located.ancestorIds.length === 0) {
-        // root END: pop a modal frame if any, else workflow complete
-        const popped = popFrame(state);
-        if (popped.popped) {
+      // Modal frames are tagged by the depth at which the modal target was
+      // entered (== resume_path's ancestor count). If the top frame's depth
+      // matches the current __end__ depth, the modal flow has run to
+      // completion — pop and resume the deferred position. Otherwise this is
+      // either a real workflow completion (root, no frame) or a subgraph
+      // exit that has nothing to do with the modal flow.
+      const currentDepth = located.ancestorIds.length;
+      const top = state.stack[state.stack.length - 1];
+      if (top) {
+        const topDepth = Math.max(0, top.path.length - 1);
+        if (topDepth === currentDepth) {
+          popFrame(state);
           mutated = true;
           continue;
         }
+      }
+      if (currentDepth === 0) {
         return { kind: 'complete', mutated };
       }
       // subgraph END: apply outputMap, pop one path level, follow parent edge

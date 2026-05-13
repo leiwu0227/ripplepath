@@ -98,8 +98,12 @@ export function confirmJump(
       throw new ModalDepthCapError(state.stack.length);
     }
     state.stack.push({ path: pending.resume_path, attempt: pending.resume_attempt });
+  } else {
+    // 'replace': if we were inside a modal entry, abandon that frame —
+    // the user is explicitly switching away from the modal flow. If no
+    // modal is active, this is a no-op (Array.pop on empty returns undef).
+    state.stack.pop();
   }
-  // For 'replace', we simply discard the current frame (do not push)
 
   state.current.path = targetPath;
   state.current.attempt = 0;
