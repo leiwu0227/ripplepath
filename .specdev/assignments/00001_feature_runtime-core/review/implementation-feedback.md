@@ -25,3 +25,18 @@
 - [F1.1] Addressed: `package.json` now narrows the `zod` peer dependency to `^3.25.0`, matching the resolver's Zod v3 introspection.
 - [F1.2] Addressed: transcript creation now emits `run_created`, structural subgraph transitions emit `subgraph_entered`/`subgraph_exited`, and the E2E asserts those lifecycle events.
 - [F1.3] Addressed: work responses now include structured `free_entries`, and the host-agent template/example point at that field.
+
+## Round 3
+
+**Verdict:** approved
+
+### Findings
+- (none)
+
+### Addressed from changelog
+- [F2.1] Addressed: `advanceStructural` now checks modal-frame depth before treating a nested `__end__` as a normal subgraph exit, so subgraph-local modal flows resume at the deferred in-subgraph path. `tests/unit/advance.test.ts` covers the subgraph-local modal-pop case.
+- [F2.2] Addressed: `confirmJump` now discards the current modal frame for `replace` entries, and `tests/unit/free-entry.test.ts` covers replace while a modal frame is active.
+
+### Verification
+- `npm test -- --run` passed: 6 files, 30 tests.
+- `npm run typecheck` passed.
