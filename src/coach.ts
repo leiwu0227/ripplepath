@@ -142,7 +142,7 @@ export function stepRun(opts: StepRunOptions): StepRunResponse {
   const graph = getGraph(workflow, checkpoint.rootGraph);
   const node = getNode(graph, checkpoint.position.node);
   if (node.terminal) {
-    return completeRun(opts.workflowRoot, workflow, checkpoint, checkpoint.position, checkpoint.position);
+    return completeRun(opts.workflowRoot, checkpoint, checkpoint.position);
   }
   const errors = validateOutput(node.outputSchema, opts.output);
   if (errors.length > 0) {
@@ -176,7 +176,7 @@ export function stepRun(opts: StepRunOptions): StepRunResponse {
   });
   const nextNode = getNode(graph, nextNodeId);
   if (nextNode.terminal) {
-    return completeRun(opts.workflowRoot, workflow, checkpoint, from, to);
+    return completeRun(opts.workflowRoot, checkpoint, to);
   }
   writeCheckpoint(opts.workflowRoot, checkpoint);
   return stateForCheckpoint(workflow, checkpoint);
@@ -245,13 +245,12 @@ function focusedCheckpoint(rootPath: string): Checkpoint {
   return readCheckpoint(rootPath, current.focusedRunId);
 }
 
-function completeRun(rootPath: string, workflow: Workflow, checkpoint: Checkpoint, from: Position, to: Position): StepRunResponse {
+function completeRun(rootPath: string, checkpoint: Checkpoint, to: Position): StepRunResponse {
   checkpoint.status = 'completed';
   checkpoint.position = to;
   checkpoint.updatedAt = new Date().toISOString();
   writeCheckpoint(rootPath, checkpoint);
   writeCurrent(rootPath, { focusedRunId: null });
-  appendTransition(rootPath, checkpoint.runId, transitionEntry('step', checkpoint.runId, from, to));
   return {
     status: 'completed',
     run: { id: checkpoint.runId, status: 'completed', rootGraph: checkpoint.rootGraph },
@@ -376,4 +375,3 @@ function transitionEntry(
     error: null,
   };
 }
-

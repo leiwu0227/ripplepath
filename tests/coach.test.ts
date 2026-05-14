@@ -193,6 +193,13 @@ describe('coach operations', () => {
       expect(readCheckpoint(root, 'daily-a').position).toEqual({ graph: 'daily', node: 'done' });
       expect(readCheckpoint(root, 'daily-a').status).toBe('completed');
       expect(readCurrent(root)).toEqual({ focusedRunId: null });
+      const logEntries = fs
+        .readFileSync(path.join(root, 'runs', 'daily-a', 'transition-log.jsonl'), 'utf8')
+        .trim()
+        .split('\n')
+        .map((line) => JSON.parse(line) as { op: string; input?: { artifact?: string } });
+      expect(logEntries.map((entry) => entry.op)).toEqual(['start', 'step']);
+      expect(logEntries[1]?.input?.artifact).toBe('artifacts/review/output.json');
     } finally {
       fs.rmSync(root, { recursive: true, force: true });
     }
