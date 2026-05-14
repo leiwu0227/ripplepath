@@ -14,9 +14,9 @@
     "templates"
   ],
   "scripts": {
-    "build": "tsc",
-    "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "build": "node ./node_modules/typescript/lib/tsc.js",
+    "test": "node ./node_modules/vitest/vitest.mjs run",
+    "typecheck": "node ./node_modules/typescript/lib/tsc.js --noEmit"
   },
   "dependencies": {
     "jsonc-parser": "^3.3.1",
