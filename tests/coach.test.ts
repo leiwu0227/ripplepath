@@ -5,13 +5,79 @@ import path from 'node:path';
 import {
   appendTransition,
   ensureWorkflowRoot,
+  getState,
   loadWorkflow,
   readCheckpoint,
   readCurrent,
+  resumeRun,
+  startRun,
+  stepRun,
+  suspendRun,
   writeCheckpoint,
   writeCurrent,
   writeNodeOutput,
 } from '../src/index.js';
+
+function makeRoot(): string {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ripplegraph-coach-'));
+  fs.writeFileSync(
+    path.join(root, 'workflow.json'),
+    JSON.stringify({
+      id: 'demo',
+      version: '0.1.0',
+      graphs: {
+        daily: {
+          entry: 'review',
+          nodes: {
+            review: {
+              purpose: 'Review generated intents',
+              instructions: 'Submit a decision.',
+              exec: 'inline',
+              outputSchema: {
+                type: 'object',
+                required: ['decision'],
+                properties: {
+                  decision: { type: 'string', enum: ['proceed', 'stop'] },
+                },
+              },
+              edges: [
+                { to: 'execute', when: { decision: 'proceed' } },
+                { to: 'done', when: { decision: 'stop' } },
+              ],
+            },
+            execute: {
+              purpose: 'Record execution result',
+              instructions: 'Submit the execution summary.',
+              exec: 'inline',
+              outputSchema: {
+                type: 'object',
+                required: ['summary'],
+                properties: { summary: { type: 'string' } },
+              },
+              edges: [{ to: 'done' }],
+            },
+            done: { purpose: 'Complete', terminal: true },
+          },
+        },
+        mockcopy: {
+          entry: 'plan',
+          nodes: {
+            plan: {
+              purpose: 'Plan mockcopy run',
+              instructions: 'Submit the mockcopy plan.',
+              exec: 'inline',
+              outputSchema: { type: 'object' },
+              edges: [{ to: 'done' }],
+            },
+            done: { purpose: 'Complete', terminal: true },
+          },
+        },
+      },
+    }),
+    'utf8',
+  );
+  return root;
+}
 
 describe('coach runtime storage', () => {
   it('loads a multi-graph workflow and persists the focused run files', () => {
@@ -92,3 +158,55 @@ describe('coach runtime storage', () => {
   });
 });
 
+describe('coach operations', () => {
+  it('starts, suspends, and resumes exactly one focused run', () => {
+    const root = makeRoot();
+    try {
+      expect(getState({ workflowRoot: root }).status).toBe('no_focused_run');
+
+      const started = startRun({ workflowRoot: root, graph: 'daily', runId: 'daily-a' });
+      expect(started.run.id).toBe('daily-a');
+      expect(() => startRun({ workflowRoot: root, graph: 'mockcopy', runId: 'mock-a' })).toThrow(
+        /focused run/,
+      );
+
+      const suspended = suspendRun({ workflowRoot: root, note: 'daily execution preempted' });
+      expect(suspended.run.status).toBe('suspended');
+      expect(readCurrent(root)).toEqual({ focusedRunId: null });
+
+      startRun({ workflowRoot: root, graph: 'mockcopy', runId: 'mock-a' });
+      suspendRun({ workflowRoot: root });
+      const resumed = resumeRun({ workflowRoot: root, runId: 'daily-a' });
+      expect(resumed.position).toEqual({ graph: 'daily', node: 'review' });
+      expect(readCheckpoint(root, 'daily-a').status).toBe('active');
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it('steps through a branch and completes at a terminal node', () => {
+    const root = makeRoot();
+    try {
+      startRun({ workflowRoot: root, graph: 'daily', runId: 'daily-a' });
+      const next = stepRun({ workflowRoot: root, output: { decision: 'stop' } });
+      expect(next.status).toBe('completed');
+      expect(readCheckpoint(root, 'daily-a').position).toEqual({ graph: 'daily', node: 'done' });
+      expect(readCheckpoint(root, 'daily-a').status).toBe('completed');
+      expect(readCurrent(root)).toEqual({ focusedRunId: null });
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it('rejects invalid output without advancing the checkpoint', () => {
+    const root = makeRoot();
+    try {
+      startRun({ workflowRoot: root, graph: 'daily', runId: 'daily-a' });
+      const response = stepRun({ workflowRoot: root, output: { decision: 'maybe' } });
+      expect(response.status).toBe('validation_error');
+      expect(readCheckpoint(root, 'daily-a').position).toEqual({ graph: 'daily', node: 'review' });
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
+});
