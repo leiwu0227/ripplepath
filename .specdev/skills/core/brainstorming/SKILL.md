@@ -91,9 +91,7 @@ Once all design sections are validated:
    - Success criteria
    - Testing approach
 4. Announce: "Brainstorm complete. Design written to assignment folder."
-5. Run `specdev checkpoint brainstorm` and present its choices in the repeatable choice format it returns.
-   - If checkpoint output is unavailable, run `specdev next --json` and present the returned choices.
-   - The expected user-facing choices are automated review, manual review, or approval.
+5. Run `specdev checkpoint brainstorm`. After any specdev command that prints an `interaction` block, render it via `AskUserQuestion` (Claude Code) or its host equivalent, using the exact labels and order. Do not paraphrase, reorder, or drop options. If a chosen option has `requires_reviewer: true`, render the `follow_up` block as a second `AskUserQuestion`. After any command that prints a `continuation` block with `interrupt: false`, invoke the printed command immediately without prompting the user.
 6. Stop and wait — do NOT proceed to breakdown until the user has approved
 
 ## Red Flags

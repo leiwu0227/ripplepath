@@ -1,17 +1,28 @@
 {
-  "version": 1,
-  "goal": "REPLACE ME with a one-sentence statement of what this workflow is for.",
-  "nodes": [
-    {
-      "id": "start_here",
-      "exec": "inline",
-      "node": "./nodes/start_here",
-      "purpose": "Kick off the workflow."
+  "id": "replace-me",
+  "version": "0.1.0",
+  "graphs": {
+    "main": {
+      "entry": "start",
+      "nodes": {
+        "start": {
+          "purpose": "Start the workflow",
+          "instructions": "Submit the first structured result.",
+          "exec": "inline",
+          "outputSchema": {
+            "type": "object",
+            "required": ["result"],
+            "properties": {
+              "result": { "type": "string" }
+            }
+          },
+          "edges": [{ "to": "done" }]
+        },
+        "done": {
+          "purpose": "Workflow complete",
+          "terminal": true
+        }
+      }
     }
-  ],
-  "edges": [
-    { "from": "__start__", "to": "start_here" },
-    { "from": "start_here", "to": "__end__" }
-  ],
-  "entries": []
+  }
 }

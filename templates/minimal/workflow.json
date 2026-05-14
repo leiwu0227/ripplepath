@@ -1,0 +1,66 @@
+{
+  "id": "minimal-poc",
+  "version": "0.1.0",
+  "graphs": {
+    "daily-execution": {
+      "entry": "review",
+      "nodes": {
+        "review": {
+          "purpose": "Review generated intents",
+          "instructions": "Inspect today's generated intents with the user and submit a decision.",
+          "exec": "inline",
+          "outputSchema": {
+            "type": "object",
+            "required": ["decision"],
+            "properties": {
+              "decision": { "type": "string", "enum": ["proceed", "stop"] }
+            }
+          },
+          "edges": [
+            { "to": "execute", "when": { "decision": "proceed" } },
+            { "to": "done", "when": { "decision": "stop" } }
+          ]
+        },
+        "execute": {
+          "purpose": "Record execution result",
+          "instructions": "Submit the final execution summary.",
+          "exec": "inline",
+          "outputSchema": {
+            "type": "object",
+            "required": ["summary"],
+            "properties": {
+              "summary": { "type": "string" }
+            }
+          },
+          "edges": [{ "to": "done" }]
+        },
+        "done": {
+          "purpose": "Daily execution complete",
+          "terminal": true
+        }
+      }
+    },
+    "mockcopy-backtest": {
+      "entry": "plan",
+      "nodes": {
+        "plan": {
+          "purpose": "Plan a mockcopy backtest",
+          "instructions": "Submit the mockcopy backtest plan.",
+          "exec": "inline",
+          "outputSchema": {
+            "type": "object",
+            "required": ["plan"],
+            "properties": {
+              "plan": { "type": "string" }
+            }
+          },
+          "edges": [{ "to": "done" }]
+        },
+        "done": {
+          "purpose": "Mockcopy backtest planned",
+          "terminal": true
+        }
+      }
+    }
+  }
+}

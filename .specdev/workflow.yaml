@@ -1,5 +1,4 @@
-workflow_contract_version: 1
-
+workflow_contract_version: 2
 phases:
   brainstorm:
     steps:
@@ -12,10 +11,49 @@ phases:
       - id: checkpoint
         kind: command
         run: specdev checkpoint brainstorm
+        interaction:
+          id: brainstorm_review_decision
+          kind: choice
+          prompt: How do you want to proceed from brainstorm?
+          render_via: choice_prompt
+          choices:
+            - id: reviewloop_autocontinue
+              label: Automated review, then continue if approved
+              command_template: specdev reviewloop brainstorm --reviewer=<name> --autocontinue
+              requires_reviewer: true
+              autocontinue: true
+            - id: reviewloop_only
+              label: Automated review only
+              command_template: specdev reviewloop brainstorm --reviewer=<name>
+              requires_reviewer: true
+            - id: manual_review
+              label: Manual review
+              command_template: specdev review brainstorm
+            - id: approve_skip_review
+              label: Skip review and approve
+              command_template: specdev approve brainstorm
+          follow_up:
+            when: choice.requires_reviewer
+            id: reviewer_pick
+            kind: choice
+            prompt: Which reviewer?
+            source: reviewers_listing
+        requires:
+          - brainstorm/proposal.md
+          - brainstorm/design.md
       - id: approval
         kind: gate
         gate: brainstorm_approved
-
+        on_satisfied:
+          next:
+            kind: workflow_advance
+          sticky:
+            - reviewer
+            - autocontinue
+          interrupt: false
+        requires:
+          - brainstorm/proposal.md
+          - brainstorm/design.md
   breakdown:
     steps:
       - id: create_plan
@@ -23,7 +61,6 @@ phases:
         guide: .specdev/skills/core/breakdown/SKILL.md
         produces:
           - breakdown/plan.md
-
   implementation:
     steps:
       - id: execute_plan
@@ -34,10 +71,68 @@ phases:
       - id: checkpoint
         kind: command
         run: specdev checkpoint implementation
+        interaction:
+          id: implementation_review_decision
+          kind: choice
+          prompt: How do you want to proceed from implementation?
+          render_via: choice_prompt
+          choices:
+            - id: reviewloop_autocontinue
+              label: Automated review, then continue if approved
+              command_template: specdev reviewloop implementation --reviewer=<name>
+                --autocontinue
+              requires_reviewer: true
+              autocontinue: true
+            - id: reviewloop_only
+              label: Automated review only
+              command_template: specdev reviewloop implementation --reviewer=<name>
+              requires_reviewer: true
+            - id: manual_review
+              label: Manual review
+              command_template: specdev review implementation
+            - id: approve_skip_review
+              label: Skip review and approve
+              command_template: specdev approve implementation
+          follow_up:
+            when: choice.requires_reviewer
+            id: reviewer_pick
+            kind: choice
+            prompt: Which reviewer?
+            source: reviewers_listing
+        requires:
+          - implementation/progress.json
       - id: approval
         kind: gate
         gate: implementation_approved
-
+        on_satisfied:
+          next:
+            kind: workflow_advance
+          sticky:
+            - reviewer
+            - autocontinue
+          interrupt: false
+        requires:
+          - implementation/progress.json
+interactions:
+  - id: discussion_checkpoint
+    kind: choice
+    prompt: How do you want to review this discussion?
+    render_via: choice_prompt
+    choices:
+      - id: reviewloop
+        label: Automated review
+        command_template: specdev reviewloop discussion --discussion={discussion}
+          --reviewer=<name>
+        requires_reviewer: true
+      - id: manual_review
+        label: Manual review
+        command_template: specdev review discussion --discussion={discussion}
+    follow_up:
+      when: choice.requires_reviewer
+      id: reviewer_pick
+      kind: choice
+      prompt: Which reviewer?
+      source: reviewers_listing
 hooks:
   - id: brainstorm_knowledge_prompt
     slot: phase:end
@@ -46,7 +141,6 @@ hooks:
     kind: guide
     guide: .specdev/skills/core/knowledge-capture/SKILL.md
     blocking: false
-
   - id: breakdown_knowledge_prompt
     slot: phase:end
     phase: breakdown
@@ -54,7 +148,6 @@ hooks:
     kind: guide
     guide: .specdev/skills/core/knowledge-capture/SKILL.md
     blocking: false
-
   - id: repo_knowledge_prompt
     slot: phase:end
     phase: implementation

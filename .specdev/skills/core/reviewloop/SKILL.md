@@ -23,9 +23,9 @@ specdev reviewloop <phase>
 specdev reviewloop <phase> --reviewer=<name>
 ```
 
-Without `--reviewer`: lists available reviewers. If the user has already chosen automated review mode, ask reviewer type as a second multiple-choice question. Use one choice per reviewer config; do not ask for free-form reviewer text.
+Without `--reviewer`: lists available reviewers and emits a runtime `interaction` block — render it via `AskUserQuestion` (Claude Code) or its host equivalent using the exact labels and order. Do not paraphrase, reorder, or drop options.
 With `--reviewer`: spawns the reviewer and processes the result.
-With `--autocontinue`: after approval, follow `specdev next --json` without another user prompt.
+With `--autocontinue`: on approval the runtime prints a `continuation` block — when `interrupt: false`, invoke the printed command immediately without prompting the user.
 
 ## Reviewer Launch Notes
 
@@ -47,25 +47,17 @@ Each agent only writes to its own file and reads the other's.
 
 ## Flow
 
-1. Run `specdev reviewloop <phase>` — lists reviewers
-2. Ask the user whether to run review-only or review-then-autocontinue
-3. Ask reviewer type as a second multiple-choice question
-4. Run `specdev reviewloop <phase> --reviewer=<name>`
-5. Command spawns reviewer, waits for completion
-6. Reads verdict from `review/{phase}-feedback.md`
-7. **Pass** → auto-approves phase, then run `specdev next --json` and follow the returned action
-8. **Fail** → run `specdev check-review` to read findings, fix issues, write `{phase}-changelog.md`
-9. Re-run `specdev reviewloop` for next round
+1. Run `specdev reviewloop <phase>` — lists reviewers and emits an `interaction` block when reviewer selection is required. Render it via `AskUserQuestion` (Claude Code) or its host equivalent, using the exact labels and order. Do not paraphrase, reorder, or drop options.
+2. Run `specdev reviewloop <phase> --reviewer=<name>` (the value the user picked).
+3. Command spawns reviewer, waits for completion, reads verdict from `review/{phase}-feedback.md`.
+4. **Pass** → command auto-approves the phase and may print a `continuation` block. After any command that prints a `continuation` block with `interrupt: false`, invoke the printed command immediately without prompting the user.
+5. **Fail** → run `specdev check-review` to read findings, fix issues, write `{phase}-changelog.md`, then re-run `specdev reviewloop` for the next round.
 
 ## Autocontinue Contract
 
-When `--autocontinue` is present and the review is approved:
+The runtime is the single source of truth for what happens after an approved review. Honour the `continuation` block emitted by the CLI; do not hardcode reviewer carry, phase transitions, or "stop and ask" behaviour in this skill. Sticky values such as the carried reviewer are persisted by the runtime in `.specdev/.session-state.json`. If a reviewer returns `needs-changes`, run `specdev check-review`, address findings, write the changelog, and rerun reviewloop within max rounds.
 
-- Do not stop after an approved autocontinue review.
-- Run `specdev next --json` and follow the returned action instead of hardcoding phase transitions.
-- For brainstorm approval, carry the same reviewer forward when the next runtime action asks for implementation review.
-- For implementation approval, follow `specdev next --json` immediately.
-- If a reviewer returns `needs-changes`, run `specdev check-review`, address findings, write the changelog, and rerun reviewloop within max rounds.
+When the runtime does not print a `continuation` block (e.g., manual review chosen, or reviewer needs-changes), consult `specdev next --json` to discover the canonical next action rather than guessing.
 
 ## Hard Rules
 

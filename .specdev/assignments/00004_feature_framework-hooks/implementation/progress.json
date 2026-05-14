@@ -1,0 +1,41 @@
+{
+  "plan_file": ".specdev/assignments/00004_feature_framework-hooks/breakdown/plan.md",
+  "total_tasks": 5,
+  "tasks": [
+    {
+      "number": 1,
+      "status": "completed",
+      "started_at": "2026-05-14T16:08:37Z",
+      "completed_at": "2026-05-14T16:11:37Z",
+      "summary": "Added the POC workflow/checkpoint/current/log schemas, filesystem storage helpers, public exports, and a focused storage contract test. Fixed npm scripts to use direct TypeScript/Vitest entrypoints because local .bin shims were broken."
+    },
+    {
+      "number": 2,
+      "status": "completed",
+      "started_at": "2026-05-14T16:11:42Z",
+      "completed_at": "2026-05-14T16:14:23Z",
+      "summary": "Implemented focused-run Coach operations for start/state/step/suspend/resume/abandon, minimal JSON Schema output validation, branch advancement, terminal completion, and lifecycle transition logging."
+    },
+    {
+      "number": 3,
+      "status": "completed",
+      "started_at": "2026-05-14T16:14:27Z",
+      "completed_at": "2026-05-14T16:16:26Z",
+      "summary": "Replaced the reference CLI with validate/start/state/step/suspend/resume/abandon commands wired through the Coach API, emitting JSON for success and error results. Added a CLI smoke test over the new command surface."
+    },
+    {
+      "number": 4,
+      "status": "completed",
+      "started_at": "2026-05-14T16:16:31Z",
+      "completed_at": "2026-05-14T16:18:05Z",
+      "summary": "Replaced the minimal example with a single-file multi-graph POC workflow, updated README and example agent guidance for start/state/step/suspend/resume/abandon, and pruned stale old-runtime source/tests."
+    },
+    {
+      "number": 5,
+      "status": "completed",
+      "started_at": "2026-05-14T16:18:11Z",
+      "completed_at": "2026-05-14T16:19:31Z",
+      "summary": "Rebuilt dist from the POC source, verified npm run build, npm test, and a manual bin/ripplegraph smoke over a temporary examples/minimal copy."
+    }
+  ]
+}

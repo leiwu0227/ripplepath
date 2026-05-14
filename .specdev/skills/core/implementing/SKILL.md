@@ -78,10 +78,8 @@ When touching tests:
 1. Run the verification appropriate for the assignment risk. Use focused commands or text-only scans for narrow docs/template/config changes. Run executable tests once here for lightweight work if needed. Use the full test suite only for broad executable changes. Keep final verification under 2 minutes unless explicitly justified.
 2. Run `.specdev/skills/core/implementing/scripts/track-progress.sh <plan-file> summary`
 3. Present a summary to the user inline: what was built, tests passing, any notable decisions
-4. Run `specdev checkpoint implementation`.
-5. If this implementation was reached from `reviewloop brainstorm --autocontinue`, continue with the returned runtime action without asking the user for another decision. The expected action is `specdev reviewloop implementation --reviewer=<same-reviewer> --autocontinue`.
-6. Otherwise, present the returned choices. If checkpoint output is unavailable, run `specdev next --json` and present the returned choices.
-7. Stop and wait only in the non-autocontinue path.
+4. Run `specdev checkpoint implementation`. After any specdev command that prints an `interaction` block, render it via `AskUserQuestion` (Claude Code) or its host equivalent, using the exact labels and order. Do not paraphrase, reorder, or drop options. If a chosen option has `requires_reviewer: true`, render the `follow_up` block as a second `AskUserQuestion`. After any command that prints a `continuation` block with `interrupt: false`, invoke the printed command immediately without prompting the user.
+5. Stop and wait only when the runtime has not printed a non-interrupting `continuation` block.
 
 ## Red Flags
 

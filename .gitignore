@@ -3,3 +3,5 @@ runs/
 *.log
 .DS_Store
 .e2e-*/
+.specdev/.session-state.json
+.specdev/cache/
