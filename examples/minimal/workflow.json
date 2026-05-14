@@ -1,46 +1,66 @@
 {
-  "version": 1,
-  "goal": "Take a user topic, analyze it via a small subflow, and emit a final summary.",
-  "nodes": [
-    {
-      "id": "kickoff",
-      "exec": "inline",
-      "node": "./nodes/kickoff",
-      "purpose": "Capture the topic and the user's intent."
+  "id": "minimal-poc",
+  "version": "0.1.0",
+  "graphs": {
+    "daily-execution": {
+      "entry": "review",
+      "nodes": {
+        "review": {
+          "purpose": "Review generated intents",
+          "instructions": "Inspect today's generated intents with the user and submit a decision.",
+          "exec": "inline",
+          "outputSchema": {
+            "type": "object",
+            "required": ["decision"],
+            "properties": {
+              "decision": { "type": "string", "enum": ["proceed", "stop"] }
+            }
+          },
+          "edges": [
+            { "to": "execute", "when": { "decision": "proceed" } },
+            { "to": "done", "when": { "decision": "stop" } }
+          ]
+        },
+        "execute": {
+          "purpose": "Record execution result",
+          "instructions": "Submit the final execution summary.",
+          "exec": "inline",
+          "outputSchema": {
+            "type": "object",
+            "required": ["summary"],
+            "properties": {
+              "summary": { "type": "string" }
+            }
+          },
+          "edges": [{ "to": "done" }]
+        },
+        "done": {
+          "purpose": "Daily execution complete",
+          "terminal": true
+        }
+      }
     },
-    {
-      "id": "analyze",
-      "ref": "./subgraphs/analyze",
-      "purpose": "Run the analysis sub-flow on the captured topic.",
-      "inputMap": { "topic": "$.outputs.kickoff.topic" },
-      "outputMap": { "findings": "$.outputs.refine.findings" }
-    },
-    {
-      "id": "finish",
-      "exec": "inline",
-      "node": "./nodes/finish",
-      "purpose": "Compose the final conclusion."
-    },
-    {
-      "id": "hotfix",
-      "exec": "inline",
-      "node": "./nodes/hotfix",
-      "purpose": "Side-quest entry for emergency fixes the user might request mid-flow."
+    "mockcopy-backtest": {
+      "entry": "plan",
+      "nodes": {
+        "plan": {
+          "purpose": "Plan a mockcopy backtest",
+          "instructions": "Submit the mockcopy backtest plan.",
+          "exec": "inline",
+          "outputSchema": {
+            "type": "object",
+            "required": ["plan"],
+            "properties": {
+              "plan": { "type": "string" }
+            }
+          },
+          "edges": [{ "to": "done" }]
+        },
+        "done": {
+          "purpose": "Mockcopy backtest planned",
+          "terminal": true
+        }
+      }
     }
-  ],
-  "edges": [
-    { "from": "__start__", "to": "kickoff" },
-    { "from": "kickoff", "to": "analyze" },
-    { "from": "analyze", "to": "finish" },
-    { "from": "finish", "to": "__end__" },
-    { "from": "hotfix", "to": "__end__" }
-  ],
-  "entries": [
-    {
-      "id": "fix_first",
-      "target": "hotfix",
-      "description": "Pause the main flow to handle a hotfix the user just raised.",
-      "mode": "modal"
-    }
-  ]
+  }
 }

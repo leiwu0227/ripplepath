@@ -1,23 +1,26 @@
-# Minimal example — host agent guide
+# Minimal POC example
 
-This is the v0 acceptance fixture. The workflow drives a tiny topic-analysis
-flow: a kickoff captures the topic, an `analyze` subgraph (explore → refine)
-surfaces findings, a finish node composes the conclusion. A free-entry
-(`fix_first`, modal) is available so the host can demonstrate a side-quest
-into the `hotfix` work node and pop back.
+This workflow package contains two root graphs:
 
-Drive it with:
+- `daily-execution`
+- `mockcopy-backtest`
+
+Drive it with the focused-run Coach commands:
 
 ```sh
-ripplegraph state                                 # auto-inits a run
-ripplegraph step --output '{...}' --exec-used inline
+ripplegraph validate --workflow-root .
+ripplegraph start --graph daily-execution --run-id daily-demo --workflow-root .
+ripplegraph state --workflow-root .
+ripplegraph step --output '{"decision":"stop"}' --workflow-root .
 ```
 
-…until the response is `{ "status": "complete" }`.
+To switch work, suspend the focused run and start or resume another:
 
-Note: `analyze.refine` is `exec: spawn` to exercise that branch of the host
-protocol. The other nodes are `exec: inline`. Available free entries appear in
-the response's `free_entries` field.
+```sh
+ripplegraph suspend --note "pause for live work" --workflow-root .
+ripplegraph start --graph mockcopy-backtest --run-id mock-demo --workflow-root .
+ripplegraph resume --run-id daily-demo --workflow-root .
+```
 
-<!-- BEGIN workflow-specific guidance -->
-<!-- END workflow-specific guidance -->
+All commands emit canonical JSON. Consumer CLIs are expected to render their
+own domain-specific prose from that JSON.
