@@ -1,0 +1,16 @@
+import { type Checkpoint, type Current, type TransitionLogEntry, type Workflow } from './schema.js';
+export declare function runsDir(rootPath: string): string;
+export declare function currentPath(rootPath: string): string;
+export declare function runDir(rootPath: string, runId: string): string;
+export declare function checkpointPath(rootPath: string, runId: string): string;
+export declare function transitionLogPath(rootPath: string, runId: string): string;
+export declare function artifactPath(rootPath: string, runId: string, nodeId: string): string;
+export declare function ensureWorkflowRoot(rootPath: string): void;
+export declare function loadWorkflow(rootPath: string): Workflow;
+export declare function readCurrent(rootPath: string): Current;
+export declare function writeCurrent(rootPath: string, current: Current): void;
+export declare function readCheckpoint(rootPath: string, runId: string): Checkpoint;
+export declare function writeCheckpoint(rootPath: string, checkpoint: Checkpoint): void;
+export declare function writeNodeOutput(rootPath: string, runId: string, nodeId: string, output: unknown): string;
+export declare function appendTransition(rootPath: string, runId: string, entry: TransitionLogEntry): void;
+export declare function listRunIds(rootPath: string): string[];

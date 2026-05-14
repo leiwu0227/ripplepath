@@ -1,8 +1,4 @@
-import { runStateCommand } from './commands/state.js';
-import { runStepCommand } from './commands/step.js';
-import { runValidateCommand } from './commands/validate.js';
-import { runInitCommand } from './commands/init.js';
-import { RipplegraphError } from './graph/types.js';
+import { abandonRun, getState, resumeRun, RipplegraphError, startRun, stepRun, suspendRun, validateWorkflowRoot, } from './index.js';
 function parseArgs(argv) {
     const [command = '', ...rest] = argv;
     const flags = {};
@@ -22,41 +18,49 @@ function parseArgs(argv) {
     }
     return { command, flags };
 }
-function getStringFlag(flags, name) {
-    const v = flags[name];
-    return typeof v === 'string' ? v : undefined;
+function stringFlag(flags, name) {
+    const value = flags[name];
+    return typeof value === 'string' ? value : undefined;
+}
+function requiredFlag(flags, name) {
+    const value = stringFlag(flags, name);
+    if (!value)
+        throw new RipplegraphError('E_MISSING_ARG', `missing --${name}`);
+    return value;
+}
+function workflowRoot(flags) {
+    return stringFlag(flags, 'workflow-root') ?? process.cwd();
 }
 function emitJson(payload) {
-    process.stdout.write(JSON.stringify(payload, null, 2) + '\n');
+    process.stdout.write(`${JSON.stringify(payload, null, 2)}\n`);
 }
-function emitError(err) {
-    if (err instanceof RipplegraphError) {
-        process.stderr.write(JSON.stringify({ status: 'error', code: err.code, message: err.message }, null, 2) + '\n');
+function errorPayload(error) {
+    if (error instanceof RipplegraphError) {
+        return { status: 'error', code: error.code, message: error.message };
     }
-    else {
-        const e = err;
-        process.stderr.write(JSON.stringify({ status: 'error', code: 'E_INTERNAL', message: e.message, stack: e.stack }, null, 2) + '\n');
+    const err = error;
+    return { status: 'error', code: 'E_INTERNAL', message: err.message };
+}
+function parseOutput(raw) {
+    if (!raw)
+        throw new RipplegraphError('E_MISSING_ARG', 'missing --output');
+    try {
+        return JSON.parse(raw);
+    }
+    catch (error) {
+        throw new RipplegraphError('E_BAD_JSON', `--output is not valid JSON: ${error.message}`);
     }
 }
-const HELP = `ripplegraph — host-agent-driven workflow runtime
+const HELP = `ripplegraph — focused-run Coach runtime POC
 
 Commands:
-  state                              Read current state (auto-inits on first call)
-    --workflow-root <path>           Workflow root (default: cwd)
-
-  step                               Submit work or confirm a pending jump
-    --output <json>                  Validated output for the current work node
-    --exec-used inline|spawn         Which mode the host used (required with --output)
-    --confirm <proposal_id>          Confirm or reject a pending free-entry jump
-    --decision approved|rejected     Required with --confirm
-    --workflow-root <path>           Workflow root (default: cwd)
-
-  validate                           Parse the graph and resolve every node folder
-    --workflow-root <path>
-
-  init                               Scaffold AGENT.md, workflow.json, runs/
-    [--update]                       Refresh the protocol section while preserving
-                                     consumer-appendix content between markers
+  validate --workflow-root <path>
+  start --graph <graph-id> --run-id <id> [--workflow-root <path>]
+  state [--workflow-root <path>]
+  step --output <json> [--workflow-root <path>]
+  suspend [--note <text>] [--workflow-root <path>]
+  resume --run-id <id> [--workflow-root <path>]
+  abandon [--reason <text>] [--workflow-root <path>]
 `;
 async function main(argv) {
     const { command, flags } = parseArgs(argv);
@@ -65,63 +69,36 @@ async function main(argv) {
         return;
     }
     switch (command) {
-        case 'state': {
-            const response = await runStateCommand({
-                workflowRoot: getStringFlag(flags, 'workflow-root'),
-            });
-            emitJson(response);
+        case 'validate':
+            emitJson(validateWorkflowRoot(workflowRoot(flags)));
             return;
-        }
-        case 'step': {
-            const rawOutput = getStringFlag(flags, 'output');
-            const output = rawOutput !== undefined
-                ? (() => {
-                    try {
-                        return JSON.parse(rawOutput);
-                    }
-                    catch (e) {
-                        throw new RipplegraphError('E_BAD_JSON', `--output is not valid JSON: ${e.message}`);
-                    }
-                })()
-                : undefined;
-            const execUsedRaw = getStringFlag(flags, 'exec-used');
-            const execUsed = execUsedRaw === 'inline' || execUsedRaw === 'spawn' ? execUsedRaw : undefined;
-            const decisionRaw = getStringFlag(flags, 'decision');
-            const decision = decisionRaw === 'approved' || decisionRaw === 'rejected' ? decisionRaw : undefined;
-            const response = await runStepCommand({
-                workflowRoot: getStringFlag(flags, 'workflow-root'),
-                output,
-                execUsed,
-                confirm: getStringFlag(flags, 'confirm'),
-                decision,
-            });
-            emitJson(response);
+        case 'start':
+            emitJson(startRun({
+                workflowRoot: workflowRoot(flags),
+                graph: requiredFlag(flags, 'graph'),
+                runId: requiredFlag(flags, 'run-id'),
+            }));
             return;
-        }
-        case 'validate': {
-            const response = await runValidateCommand({
-                workflowRoot: getStringFlag(flags, 'workflow-root'),
-            });
-            emitJson(response);
+        case 'state':
+            emitJson(getState({ workflowRoot: workflowRoot(flags) }));
             return;
-        }
-        case 'init': {
-            const response = await runInitCommand({
-                targetDir: getStringFlag(flags, 'target') ?? getStringFlag(flags, 'workflow-root'),
-                update: flags['update'] === true,
-            });
-            emitJson(response);
+        case 'step':
+            emitJson(stepRun({ workflowRoot: workflowRoot(flags), output: parseOutput(stringFlag(flags, 'output')) }));
             return;
-        }
-        default: {
-            process.stderr.write(`unknown command: ${command}\n\n${HELP}`);
-            process.exit(2);
-        }
+        case 'suspend':
+            emitJson(suspendRun({ workflowRoot: workflowRoot(flags), note: stringFlag(flags, 'note') }));
+            return;
+        case 'resume':
+            emitJson(resumeRun({ workflowRoot: workflowRoot(flags), runId: requiredFlag(flags, 'run-id') }));
+            return;
+        case 'abandon':
+            emitJson(abandonRun({ workflowRoot: workflowRoot(flags), reason: stringFlag(flags, 'reason') }));
+            return;
+        default:
+            throw new RipplegraphError('E_UNKNOWN_COMMAND', `unknown command: ${command}`);
     }
 }
-main(process.argv.slice(2))
-    .then(() => process.exit(0))
-    .catch((err) => {
-    emitError(err);
+main(process.argv.slice(2)).catch((error) => {
+    emitJson(errorPayload(error));
     process.exit(1);
 });
