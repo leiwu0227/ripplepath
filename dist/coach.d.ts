@@ -67,6 +67,22 @@ export interface StateNoFocusedRun {
         rootGraph: string;
     }>;
 }
+export interface RunSummary {
+    id: string;
+    status: Checkpoint['status'];
+    rootGraph: string;
+    position: Position;
+    updatedAt: string;
+}
+export interface RunList {
+    status: 'ok';
+    workflow: {
+        id: string;
+        version: string;
+    };
+    focusedRunId: string | null;
+    runs: RunSummary[];
+}
 export interface ValidationErrorResponse {
     status: 'validation_error';
     run: {
@@ -100,6 +116,7 @@ export declare function validateWorkflowRoot(rootPath: string): {
 };
 export declare function startRun(opts: StartRunOptions): StateOk;
 export declare function getState(opts: WorkflowRootOptions): CoachState;
+export declare function listRuns(opts: WorkflowRootOptions): RunList;
 export declare function stepRun(opts: StepRunOptions): StepRunResponse;
 export declare function suspendRun(opts: SuspendRunOptions): StateOk;
 export declare function resumeRun(opts: ResumeRunOptions): StateOk;

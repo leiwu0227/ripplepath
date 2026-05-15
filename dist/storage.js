@@ -4,11 +4,14 @@ import { checkpointSchema, currentSchema, RipplegraphError, transitionLogEntrySc
 function workflowPath(rootPath) {
     return path.join(rootPath, 'workflow.json');
 }
+export function stateDir(rootPath) {
+    return path.join(rootPath, '.ripplegraph');
+}
 export function runsDir(rootPath) {
-    return path.join(rootPath, 'runs');
+    return path.join(stateDir(rootPath), 'runs');
 }
 export function currentPath(rootPath) {
-    return path.join(rootPath, 'current.json');
+    return path.join(stateDir(rootPath), 'current.json');
 }
 export function runDir(rootPath, runId) {
     assertPathSegment(runId, 'runId');

@@ -1,4 +1,5 @@
 import { type Checkpoint, type Current, type TransitionLogEntry, type Workflow } from './schema.js';
+export declare function stateDir(rootPath: string): string;
 export declare function runsDir(rootPath: string): string;
 export declare function currentPath(rootPath: string): string;
 export declare function runDir(rootPath: string, runId: string): string;

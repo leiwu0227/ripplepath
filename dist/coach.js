@@ -46,6 +46,26 @@ export function getState(opts) {
     }
     return stateForCheckpoint(workflow, readCheckpoint(opts.workflowRoot, current.focusedRunId));
 }
+export function listRuns(opts) {
+    const workflow = loadWorkflow(opts.workflowRoot);
+    ensureWorkflowRoot(opts.workflowRoot);
+    const current = readCurrent(opts.workflowRoot);
+    return {
+        status: 'ok',
+        workflow: { id: workflow.id, version: workflow.version },
+        focusedRunId: current.focusedRunId,
+        runs: listRunIds(opts.workflowRoot).map((runId) => {
+            const checkpoint = readCheckpoint(opts.workflowRoot, runId);
+            return {
+                id: checkpoint.runId,
+                status: checkpoint.status,
+                rootGraph: checkpoint.rootGraph,
+                position: checkpoint.position,
+                updatedAt: checkpoint.updatedAt,
+            };
+        }),
+    };
+}
 export function stepRun(opts) {
     const workflow = loadWorkflow(opts.workflowRoot);
     const checkpoint = focusedCheckpoint(opts.workflowRoot);
