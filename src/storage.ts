@@ -16,12 +16,16 @@ function workflowPath(rootPath: string): string {
   return path.join(rootPath, 'workflow.json');
 }
 
+export function stateDir(rootPath: string): string {
+  return path.join(rootPath, '.ripplegraph');
+}
+
 export function runsDir(rootPath: string): string {
-  return path.join(rootPath, 'runs');
+  return path.join(stateDir(rootPath), 'runs');
 }
 
 export function currentPath(rootPath: string): string {
-  return path.join(rootPath, 'current.json');
+  return path.join(stateDir(rootPath), 'current.json');
 }
 
 export function runDir(rootPath: string, runId: string): string {
@@ -146,4 +150,3 @@ export function listRunIds(rootPath: string): string[] {
     .map((entry) => entry.name)
     .sort();
 }
-

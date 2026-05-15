@@ -147,11 +147,14 @@ describe('coach runtime storage', () => {
       expect(readCurrent(root)).toEqual({ focusedRunId: 'run-a' });
       expect(readCheckpoint(root, 'run-a').position).toEqual({ graph: 'daily', node: 'review' });
       expect(
-        JSON.parse(fs.readFileSync(path.join(root, 'runs', 'run-a', 'artifacts', 'review', 'output.json'), 'utf8')),
+        JSON.parse(
+          fs.readFileSync(path.join(root, '.ripplegraph', 'runs', 'run-a', 'artifacts', 'review', 'output.json'), 'utf8'),
+        ),
       ).toEqual({ decision: 'proceed' });
-      expect(fs.readFileSync(path.join(root, 'runs', 'run-a', 'transition-log.jsonl'), 'utf8').trim()).toContain(
+      expect(fs.readFileSync(path.join(root, '.ripplegraph', 'runs', 'run-a', 'transition-log.jsonl'), 'utf8').trim()).toContain(
         '"op":"start"',
       );
+      expect(fs.existsSync(path.join(root, 'runs'))).toBe(false);
     } finally {
       fs.rmSync(root, { recursive: true, force: true });
     }
@@ -194,7 +197,7 @@ describe('coach operations', () => {
       expect(readCheckpoint(root, 'daily-a').status).toBe('completed');
       expect(readCurrent(root)).toEqual({ focusedRunId: null });
       const logEntries = fs
-        .readFileSync(path.join(root, 'runs', 'daily-a', 'transition-log.jsonl'), 'utf8')
+        .readFileSync(path.join(root, '.ripplegraph', 'runs', 'daily-a', 'transition-log.jsonl'), 'utf8')
         .trim()
         .split('\n')
         .map((line) => JSON.parse(line) as { op: string; input?: { artifact?: string } });
