@@ -19,18 +19,13 @@
     "typecheck": "node ./node_modules/typescript/lib/tsc.js --noEmit"
   },
   "dependencies": {
-    "jsonc-parser": "^3.3.1",
-    "tsx": "^4.19.2",
-    "zod-to-json-schema": "^3.24.1"
-  },
-  "peerDependencies": {
-    "zod": "^3.25.0"
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@types/node": "^20.17.10",
+    "tsx": "^4.19.2",
     "typescript": "^5.7.2",
-    "vitest": "^2.1.8",
-    "zod": "^3.25.76"
+    "vitest": "^2.1.8"
   },
   "engines": {
     "node": ">=20"
