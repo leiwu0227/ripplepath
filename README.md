@@ -16,26 +16,24 @@ npm install ripplegraph zod
 ## Quick start
 
 ```sh
-ripplegraph validate --workflow-root examples/minimal
-ripplegraph start --workflow-root examples/minimal --graph daily-execution --run-id daily-demo
-ripplegraph state --workflow-root examples/minimal
-ripplegraph step --workflow-root examples/minimal --output '{"decision":"stop"}'
+ripplegraph-demo status --workflow-root examples/minimal
+ripplegraph-demo start daily-execution --run daily-demo --workflow-root examples/minimal
+ripplegraph-demo submit '{"decision":"stop"}' --workflow-root examples/minimal
 ```
 
-The focused run is stored under `runs/<run-id>/`, and `current.json` records
-which run the Coach should render. To switch work:
+Runtime state is stored under `.ripplegraph/`. To switch work:
 
 ```sh
-ripplegraph start --workflow-root examples/minimal --graph daily-execution --run-id daily-1
-ripplegraph suspend --workflow-root examples/minimal --note "pause for mockcopy"
-ripplegraph start --workflow-root examples/minimal --graph mockcopy-backtest --run-id mockcopy-1
-ripplegraph suspend --workflow-root examples/minimal
-ripplegraph resume --workflow-root examples/minimal --run-id daily-1
-ripplegraph abandon --workflow-root examples/minimal --reason "manual test complete"
+ripplegraph-demo start daily-execution --run daily-1 --workflow-root examples/minimal
+ripplegraph-demo pause "pause for mockcopy" --workflow-root examples/minimal
+ripplegraph-demo start mockcopy-backtest --run mockcopy-1 --workflow-root examples/minimal
+ripplegraph-demo pause --workflow-root examples/minimal
+ripplegraph-demo resume daily-1 --workflow-root examples/minimal
+ripplegraph-demo runs --workflow-root examples/minimal
 ```
 
-All commands emit canonical JSON. The reference CLI deliberately avoids
-domain-specific prose; consumer CLIs should render their own instructions from
-the structured state object.
+`ripplegraph-demo` is the reference consumer CLI: compact text for host agents
+and humans. `ripplegraph` remains the low-level JSON CLI for debugging and
+automation.
 
 Status: v0 in development.

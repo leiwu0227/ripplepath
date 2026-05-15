@@ -5,22 +5,21 @@ This workflow package contains two root graphs:
 - `daily-execution`
 - `mockcopy-backtest`
 
-Drive it with the focused-run Coach commands:
+Drive it with the reference agent-facing commands:
 
 ```sh
-ripplegraph validate --workflow-root .
-ripplegraph start --graph daily-execution --run-id daily-demo --workflow-root .
-ripplegraph state --workflow-root .
-ripplegraph step --output '{"decision":"stop"}' --workflow-root .
+ripplegraph-demo status --workflow-root .
+ripplegraph-demo start daily-execution --run daily-demo --workflow-root .
+ripplegraph-demo submit '{"decision":"stop"}' --workflow-root .
 ```
 
 To switch work, suspend the focused run and start or resume another:
 
 ```sh
-ripplegraph suspend --note "pause for live work" --workflow-root .
-ripplegraph start --graph mockcopy-backtest --run-id mock-demo --workflow-root .
-ripplegraph resume --run-id daily-demo --workflow-root .
+ripplegraph-demo pause "pause for live work" --workflow-root .
+ripplegraph-demo start mockcopy-backtest --run mock-demo --workflow-root .
+ripplegraph-demo resume daily-demo --workflow-root .
 ```
 
-All commands emit canonical JSON. Consumer CLIs are expected to render their
-own domain-specific prose from that JSON.
+Runtime state is stored under `.ripplegraph/`. Use `ripplegraph` when you need
+the low-level JSON/debugging interface.

@@ -1,43 +1,43 @@
 # ripplegraph workflow - host agent guide
 
 This document is the protocol contract for any host agent driving this
-workflow via the `ripplegraph` CLI. The filesystem state is authoritative.
+workflow. Use `ripplegraph-demo` for normal work; use `ripplegraph` only when
+you need low-level JSON for debugging. The filesystem state is authoritative.
 
 ## Commands
 
 Use these commands from the workflow root:
 
 ```sh
-ripplegraph validate --workflow-root .
-ripplegraph start --graph <graph-id> --workflow-root .
-ripplegraph state --workflow-root .
-ripplegraph step --output '<json>' --workflow-root .
-ripplegraph suspend --note "pause current work" --workflow-root .
-ripplegraph resume --run-id <run-id> --workflow-root .
-ripplegraph abandon --workflow-root .
+ripplegraph-demo status --workflow-root .
+ripplegraph-demo start <graph-id> --run <run-id> --workflow-root .
+ripplegraph-demo submit '<json>' --workflow-root .
+ripplegraph-demo pause "pause current work" --workflow-root .
+ripplegraph-demo resume <run-id> --workflow-root .
+ripplegraph-demo runs --workflow-root .
 ```
 
 ## Loop
 
-1. Run `ripplegraph state --workflow-root .`.
-2. Read the current node purpose, instructions, and output schema.
+1. Run `ripplegraph-demo status --workflow-root .`.
+2. Read the current node purpose, instructions, and required output.
 3. Do the work requested by the node.
-4. Submit JSON with `ripplegraph step --output '<json>' --workflow-root .`.
+4. Submit JSON with `ripplegraph-demo submit '<json>' --workflow-root .`.
 5. Continue until the run reaches a terminal node.
 
 ## Switching work
 
 Only one run is current at a time. To change focus, suspend the current run and
-start or resume another run. Do not edit `current.json` by hand unless the CLI
-cannot recover.
+start or resume another run. Do not edit `.ripplegraph/current.json` by hand
+unless the CLI cannot recover.
 
 ## Files
 
 ```sh
 workflow.json
-current.json
-runs/<run-id>/checkpoint.json
-runs/<run-id>/transition-log.jsonl
+.ripplegraph/current.json
+.ripplegraph/runs/<run-id>/checkpoint.json
+.ripplegraph/runs/<run-id>/transition-log.jsonl
 ```
 
 If conversation memory conflicts with these files, trust the files.

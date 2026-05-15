@@ -1,5 +1,6 @@
 node_modules/
 runs/
+.ripplegraph/
 *.log
 .DS_Store
 .e2e-*/
