@@ -9,6 +9,7 @@ import {
   loadWorkflow,
   readCheckpoint,
   readCurrent,
+  listRuns,
   resumeRun,
   startRun,
   stepRun,
@@ -182,6 +183,23 @@ describe('coach operations', () => {
       const resumed = resumeRun({ workflowRoot: root, runId: 'daily-a' });
       expect(resumed.position).toEqual({ graph: 'daily', node: 'review' });
       expect(readCheckpoint(root, 'daily-a').status).toBe('active');
+      expect(listRuns({ workflowRoot: root })).toMatchObject({
+        focusedRunId: 'daily-a',
+        runs: [
+          {
+            id: 'daily-a',
+            status: 'active',
+            rootGraph: 'daily',
+            position: { graph: 'daily', node: 'review' },
+          },
+          {
+            id: 'mock-a',
+            status: 'suspended',
+            rootGraph: 'mockcopy',
+            position: { graph: 'mockcopy', node: 'plan' },
+          },
+        ],
+      });
     } finally {
       fs.rmSync(root, { recursive: true, force: true });
     }

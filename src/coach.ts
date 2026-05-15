@@ -74,6 +74,21 @@ export interface StateNoFocusedRun {
   resumableRuns: Array<{ id: string; status: 'suspended'; rootGraph: string }>;
 }
 
+export interface RunSummary {
+  id: string;
+  status: Checkpoint['status'];
+  rootGraph: string;
+  position: Position;
+  updatedAt: string;
+}
+
+export interface RunList {
+  status: 'ok';
+  workflow: { id: string; version: string };
+  focusedRunId: string | null;
+  runs: RunSummary[];
+}
+
 export interface ValidationErrorResponse {
   status: 'validation_error';
   run: { id: string; status: Checkpoint['status']; rootGraph: string };
@@ -131,6 +146,27 @@ export function getState(opts: WorkflowRootOptions): CoachState {
     };
   }
   return stateForCheckpoint(workflow, readCheckpoint(opts.workflowRoot, current.focusedRunId));
+}
+
+export function listRuns(opts: WorkflowRootOptions): RunList {
+  const workflow = loadWorkflow(opts.workflowRoot);
+  ensureWorkflowRoot(opts.workflowRoot);
+  const current = readCurrent(opts.workflowRoot);
+  return {
+    status: 'ok',
+    workflow: { id: workflow.id, version: workflow.version },
+    focusedRunId: current.focusedRunId,
+    runs: listRunIds(opts.workflowRoot).map((runId) => {
+      const checkpoint = readCheckpoint(opts.workflowRoot, runId);
+      return {
+        id: checkpoint.runId,
+        status: checkpoint.status,
+        rootGraph: checkpoint.rootGraph,
+        position: checkpoint.position,
+        updatedAt: checkpoint.updatedAt,
+      };
+    }),
+  };
 }
 
 export function stepRun(opts: StepRunOptions): StepRunResponse {
